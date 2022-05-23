@@ -1,0 +1,58 @@
+@import './../p.less';
+
+.compute {
+  .full;
+  display: flex;
+  flex-direction: column;
+  background-color: #888;
+  > .title {
+    flex: 0.5;
+    .w;
+  }
+
+  > .content {
+    flex: 9;
+    display: flex;
+    color: white;
+    letter-spacing: 1px;
+    flex-direction: column;
+    >.energy{
+      .flex-center;
+      .w;
+      height: 30px;
+      display: flex;
+      >div{
+        width: 350px;
+        .flex-column-center;
+        .flex-center;
+        >p{
+          min-width:100px;
+          display: inline-block;
+          white-space: nowrap; 
+          overflow: hidden;
+          text-overflow:ellipsis;
+        }
+      }
+
+      .quantity{
+        >.el-input{
+          width: 200px;
+        }
+      }
+
+      .type{
+        >.el-select{
+          width: 200px;
+        }
+      }
+    }
+    >.form{
+      width: 80%;
+      justify-content: center;
+    }
+  }
+
+  > .footer {
+    flex: 0.5;
+  }
+}
