@@ -1,16 +1,19 @@
 <style lang="less" scoped></style>
-
 <script setup lang="ts">
 import { reactive, ref, defineProps } from "vue";
+import { getAllNBQ } from "./../../../../../../../assets/api/compute/compute";
 const excel = reactive({
   xTable: ref(),
   init: () => {
     // 先计算一下总价
     excel.allTotal();
+
+    excel.getAll();
   },
   // 标题
   titleName: {
     序号: "seq",
+    名称: "name",
     类型: "type",
     规格: "specs",
     数量: "num",
@@ -19,9 +22,30 @@ const excel = reactive({
   },
   // 数据
   dataList: [
-    { type: "变电器750Kwh", specs: "规格zxc", num: 10, price: 10, total: 0 },
-    { type: "逆变器fs-vgx", specs: "规格cvb", num: 10, price: 500, total: 0 },
-    { type: "0.5C规格架子", specs: "规格bnm", num: 10, price: 10, total: 0 },
+    {
+      type: "变电器750Kwh",
+      name: "GSE0050-PV",
+      specs: "规格zxc",
+      num: 10,
+      price: 10,
+      total: 0,
+    },
+    {
+      type: "逆变器fs-vgx",
+      name: "GSE0050-PV",
+      specs: "规格cvb",
+      num: 10,
+      price: 500,
+      total: 0,
+    },
+    {
+      type: "0.5C规格架子",
+      name: "GSE0050-PV",
+      specs: "规格bnm",
+      num: 10,
+      price: 10,
+      total: 0,
+    },
   ],
   // 合计表
   dataFooter: {
@@ -29,6 +53,22 @@ const excel = reactive({
     price: 0,
     total: 0,
   },
+
+  allmachineInfo: <any>[],
+
+  // 获取所有的机器信号
+  getAll: async () => {
+    let res: any = await getAllNBQ();
+    if (!res) return;
+    let datas = res?.data;
+    datas.map((data: any) => {
+      excel.allmachineInfo.push(data);
+      console.log(excel.allmachineInfo, "excel.allmachineInfo");
+    });
+  },
+
+  // 获取到对应的清单
+  getList: () => {},
 
   // 添加表格背景颜色
   footerCellClassName: ({ $rowIndex, columnIndex }: any) => {
@@ -139,6 +179,11 @@ defineExpose({
       :data="excel.dataList"
     >
       <vxe-table-column type="seq" title="序号" width="60"></vxe-table-column>
+      <vxe-table-column
+        field="name"
+        title="名称"
+        min-width="100"
+      ></vxe-table-column>
       <vxe-table-column
         field="type"
         title="类型"

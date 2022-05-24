@@ -10,8 +10,8 @@ import {
 } from "./../../../../../../assets/api/compute/compute";
 import { ExcelService } from "../../../../../../utils/exportToExcel";
 import Exc from "./components/from.vue";
-import { lv } from "element-plus/lib/locale";
 type excelMap = {
+  名称: string;
   序号: string;
   类型: string;
   规格: string;
