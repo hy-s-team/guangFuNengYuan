@@ -28,6 +28,7 @@ compoents: {
         本组件
 */
 const exc = ref();
+
 const compute = reactive({
   init: () => {
     // 获取所有的逆变器
@@ -124,14 +125,13 @@ const compute = reactive({
         // 导出excel
         const s = new ExcelService();
         s.exportAsExcelFile(compute.data.transJSON, "gf");
-        console.log(compute.data.transJSON, "compute.data.transJSON");
-        compute.data.transJSON = [];
+        // compute.data.transJSON = [];
       },
       // 转换JSON
       getJSON: (excel: any) => {
         const { titleName } = excel;
         let newTitleName = compute.data.methods.reverseMap(titleName);
-        return compute.data.json.map((equs: any) => {
+        compute.data.json.map((equs: any) => {
           let map: any = {};
           Object.keys(equs).map((equ: any) => {
             let equV = equs[equ];
@@ -146,6 +146,7 @@ const compute = reactive({
         const { dataFooter } = excel;
         const { num, price, total } = dataFooter;
         let totalMap = {
+          名称: "",
           序号: "合计",
           类型: "",
           规格: "",
@@ -153,14 +154,19 @@ const compute = reactive({
           价格: price,
           总价合计: total,
         };
-        return compute.data.transJSON.push(totalMap);
+        compute.data.transJSON.push(totalMap);
       },
+
       // 导入数据---处理顺序
       inputJSON: (excel: any) => {
+        // 导入数据的时候将之前的清空
+        compute.data.transJSON = [];
+        compute.data.json = [];
         const { dataList, titleName } = excel;
-        compute.data.methods.initJSON(titleName);
+        // 颠倒名称
+        compute.data.fromJSON = compute.data.methods.reverseMap(titleName);
+        // 设备列表
         dataList.map((item: any, index: number) => {
-          // let excJson: { [key: string]: any } = {};
           let excJson: any = {};
           let seq: number = index + 1;
           Object.keys(titleName).map((title) => {
@@ -174,13 +180,11 @@ const compute = reactive({
               excJson[e] = v;
             }
           });
+          // 第一段JSON文件
           compute.data.json.push(excJson);
         });
       },
-      // 初始化处理数据
-      initJSON: (map: any) => {
-        compute.data.fromJSON = compute.data.methods.reverseMap(map);
-      },
+
       // 颠倒map
       reverseMap: (map: any) => {
         let newMap = Object.keys(map).reduce((acc: any, key: any) => {
@@ -192,7 +196,7 @@ const compute = reactive({
     },
     // 导出的表单数据
     json: [] as excelMap,
-
+    // 刚加载JSON
     fromJSON: undefined,
     // 最终json
     transJSON: [] as excelMap,

@@ -7,7 +7,7 @@ const excel = reactive({
   init: () => {
     // 先计算一下总价
     excel.allTotal();
-
+    // 获取所有机器信息
     excel.getAll();
   },
   // 标题
