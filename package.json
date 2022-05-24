@@ -11,6 +11,7 @@
     "axios": "^0.27.2",
     "element-plus": "^2.2.1",
     "excel": "^1.0.1",
+    "file-saver": "^2.0.5",
     "less": "^4.1.2",
     "less-loader": "^7.0.0",
     "vue": "^3.2.36",
@@ -19,7 +20,9 @@
     "vuex": "^4.0.0-0",
     "vxe-table": "^4.2.3",
     "xe-utils": "^3.5.4",
-    "xlsx": "^0.18.5"
+    "xlsx": "^0.18.5",
+    "xlsx-style": "^0.8.13",
+    "xlsx-style-medalsoft": "^0.8.13"
   },
   "devDependencies": {
     "@vue/cli-plugin-router": "~4.5.13",
