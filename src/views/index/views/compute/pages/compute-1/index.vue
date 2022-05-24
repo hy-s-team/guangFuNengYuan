@@ -124,6 +124,8 @@ const compute = reactive({
         // 导出excel
         const s = new ExcelService();
         s.exportAsExcelFile(compute.data.transJSON, "gf");
+        console.log(compute.data.transJSON, "compute.data.transJSON");
+        compute.data.transJSON = [];
       },
       // 转换JSON
       getJSON: (excel: any) => {
