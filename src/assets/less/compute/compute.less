@@ -1,77 +1,244 @@
-@import './../p.less';
+@import "./../p.less";
 
 .compute {
   .full;
-  display: flex;
-  flex-direction: column;
-  background-color: #888;
-  > .title {
-    flex: 0.5;
-    .w;
-  }
+  .flex-center;
+  font-size: 12px;
 
-  > .content {
-    flex: 9;
+  .pop {
+    .h;
+    width: 80%;
     display: flex;
-    color: white;
-    letter-spacing: 1px;
     flex-direction: column;
-    >.energy{
-      .flex-center;
-      .w;
-      height: 30px;
+    .pop-title{
+      flex: 1;
+    }
+
+    .pop-content{
+      flex: 8;
       display: flex;
-      >div{
-        width: 350px;
+      justify-content: space-between;
+
+      .content {
+        .h;
+        width: 80%;
+        display: flex;
+        flex-direction: column;
+        .form{
+          .w;
+          flex: 1;
+          display: flex;
+          flex-direction: column;
+          .form-title{
+            .w;
+            height: 10%;
+            .flex-center;
+            background-color: rgb(242,243,245);
+            >p{
+              font-size: 24px;
+              letter-spacing: 3px;
+              font-weight: 700;
+            }
+          }
+
+          .form-content{
+            height: 80%;
+          }
+
+          .from-msg{
+            height: 10%;
+          }
+
+
+        }
+
+        .succ{
+          color: black;
+          font-size: 15px;
+        }
+      }
+  
+      .menu {
+        .h;
+        width: 20%;
+        display: flex;
+        flex-direction: column;
+        // border: 1px solid gray;
+
+  
+        >div {
+          border-bottom: 1px solid rgb(210, 212, 215);
+        }
+  
+        >.title {
+          .w;
+          height: 5%;
+          display: flex;
+          justify-content: space-between;
+          .flex-column-center;
+  
+          >div {
+            font-size: 13px;
+            margin-left: 12px;
+            font-weight: 700;
+          }
+  
+          >i {
+            width: 16px;
+            height: 16px;
+            font-size: 16px;
+            margin-right: 12px;
+            .iconfont;
+  
+            &:hover {
+              border-radius: 4px;
+            }
+          }
+        }
+  
+        // 一级标签通用
+        .menu-first-title {
+          .w;
+          height: 25%;
+          font-weight: 700;
+          .flex-column-center;
+          max-height: 40px;
+  
+          >div {
+            font-weight: 600;
+            font-size: 13px;
+            border-left: 3px solid rgb(5, 100, 224);
+            margin-left: 12px;
+            padding-left: 5px;
+          }
+        }
+  
+        // 一级标签的盒子居中
+        .menu-first-div-info {
+          height: 75%;
+          flex-direction: column;
+          .flex-center;
+  
+          >div {
+            width: 88%;
+            flex: 1;
+            display: flex;
+            justify-content: space-between;
+            max-height: 50px;
+            .flex-column-center;
+  
+            >p {
+              color: rgb(135, 145, 157);
+              .flex-column-center;
+              min-width: 80px;
+              min-width: 25%;
+              font-size: 12px;
+            }
+  
+          }
+        }
+  
+        // 基本属性
+        .attr {
+          .w;
+          min-height: 25%;
+          flex-direction: column;
+  
+          >.title {
+            .menu-first-title;
+          }
+  
+          >.info {
+            .menu-first-div-info;
+  
+            .effect {
+              .radio {
+                margin-left: 0px;
+                width: 75%;
+              }
+            }
+  
+            .load>div {
+              min-width: 75%;
+              color: #87919d;
+            }
+          }
+        }
+  
+        // 逆变器
+        .nbq {
+          .w;
+          min-height: 25%;
+          flex-direction: column;
+  
+          >.title {
+            .menu-first-title;
+          }
+  
+          >.info {
+            .menu-first-div-info;
+  
+            .type>.radio {
+              min-width: 75%;
+            }
+  
+            .num >div{
+              max-width: 100px;
+              margin-right: 120px;
+            }
+          }
+  
+        }
+  
+        // 电量
+        .electric {
+          .w;
+          min-height: 25%;
+          flex-direction: column;
+  
+          >.title {
+            .menu-first-title;
+          }
+  
+          >.info {
+            display: flex;
+            justify-content: center;
+  
+            .needs {
+              width: 88%;
+              max-height: 40px;
+              top: 0px;
+              display: flex;
+              justify-content: space-between;
+              .flex-column-center;
+  
+              >p {
+                min-width: 25%;
+              }
+  
+  
+            }
+          }
+        }
+      }
+  
+      .menu>:last-child {
+        border-bottom: none;
+      }
+    }
+
+    .pop-footer{
+      flex: 1;
+      .footer{
+        .full;
+        display: flex;
         .flex-column-center;
-        .flex-center;
-        >p{
-          min-width:100px;
-          display: inline-block;
-          white-space: nowrap; 
-          overflow: hidden;
-          text-overflow:ellipsis;
-        }
+        justify-content: space-between;
+      border-top: 1px solid rgb(210, 212, 215);
       }
-
-      .quantity{
-        >.el-input{
-          width: 200px;
-        }
-      }
-
-      .type{
-        >.el-select{
-          width: 200px;
-        }
-      }
-    }
-    >.form{
-      .h;
-      justify-content: center;
-      display: flex;
-      .form-content{
-        padding-top: 3%;
-      width: 80%;
-      display: flex;
-      flex-direction: column;
-      .form-msg{
-        .w;
-        flex: 0.1;
-        .el-empty__description >p{
-          color: black !important;
-        }
-      }
-       .exc{
-        flex: 0.9;
-          .full;
-        }
-      }
-     
     }
   }
 
-  > .footer {
-    flex: 0.5;
-  }
 }
+
+

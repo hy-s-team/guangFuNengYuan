@@ -35,101 +35,76 @@ export class ExcelService {
     // worksheet["!cols"] = wscols;
     // worksheet["!rows"] = wsrows;
 
-    // /**设置标题头背景色 */
-    // for (const i in worksheet) {
-    //   console.log(i, "i");
-    //   if (i === "B2") {
-    //     worksheet[i].s = {
-    //       // 字体
-    //       font: {
-    //         name: "仿宋",
-    //         sz: 24,
-    //         bold: true,
-    //       },
-    //     };
-    //   }
-    // }
-
-    // console.log(worksheet, "worksheet");
-
-    // // return;
+    // return;
     // XLSX.utils.book_append_sheet(workbook, worksheet);
     // XLSX.writeFile(workbook, ExcelService.toExportFileName(excelFileName));
 
-    // Excel第一个sheet的名称
     // 导出的excel文件名
-    const filename = "幼儿园课程表.xlsx";
+    const filename = ExcelService.toExportFileName(excelFileName) + ".xlsx";
 
     // Excel第一个sheet的名称
-    const ws_name = "Sheet1";
     const wb = XLSX.utils.book_new();
-    const ws = XLSX.utils.json_to_sheet(json);
-    XLSX.utils.book_append_sheet(wb, ws, ws_name); // 将数据添加到工作薄
+
+    // return;
+    const ws = XLSX.utils.aoa_to_sheet(json);
+
+    XLSX.utils.book_append_sheet(wb, ws, filename); // 将数据添加到工作薄
+
+    let maxW: number = 0;
+    let len: number = 0;
+    json.map((i: any) => {
+      len = Object.values(i).length - 1;
+      Object.values(i).map((v: any, num: number) => {
+        if (maxW <= num) maxW = this.getByteLen(v);
+      });
+    });
+
+    // 设置单元格宽度
+    let wscols = <any>[];
+    new Array(len).fill("").map(() => {
+      let map = { wch: maxW };
+      wscols.push(map);
+    });
+    ws["!cols"] = wscols;
 
     // 设置标题行单元格合并
     // s即start, e即end, r即row, c即column
     // 合并从--0行0列开始,到0行3列
-    ws["!merges"] = [{ s: { r: 0, c: 0 }, e: { r: 0, c: 3 } }];
-
-    // 设置单元格宽度
-    ws["!cols"] = [
-      {
-        wpx: 40,
-      },
-      {
-        wpx: 100,
-      },
-      {
-        wpx: 100,
-      },
-      {
-        wpx: 100,
-      },
-    ];
+    ws["!merges"] = [{ s: { r: 0, c: 0 }, e: { r: 0, c: len } }];
 
     /*
-    设置单元格其他样式
-    这里列举一部分,其他样式大同小异,自行网上搜索
+      设置单元格其他样式
+      这里列举一部分,其他样式大同小异,自行网上搜索
    */
-
-    // 可以遍历全部单元格,进行样式设置
-    for (let i in ws) {
-      if (i === "B1") {
-        ws[i].s = {
-          // 字体
-          font: {
-            name: "仿宋",
-            sz: 14,
-            bold: true,
-          },
-        };
-      } else if (i === "B2") {
-        ws[i].s = {
-          // 居中
-          alignment: {
-            horizontal: "center",
-            vertical: "center",
-            wrapText: true,
-          },
-        };
-      } else if (i === "B3") {
-        ws[i].s = {
-          // 单元格边框
-          border: {
-            top: {
-              style: "thin",
+    for (let key in ws) {
+      if (key.indexOf("!") !== 0) {
+        if (key == "A1") {
+          ws[key]["s"] = {
+            font: {
+              sz: 20, //设置标题的字号
+              bold: true, //设置标题是否加粗
             },
-            bottom: {
-              style: "thin",
+            alignment: {
+              horizontal: "center",
+              vertical: "center",
+              wrapText: true,
+            }, //设置标题水平竖直方向居中，并自动换行展示
+            fill: {
+              fgColor: { rgb: "ebebeb" }, //设置标题单元格的背景颜色
             },
-            left: {
-              style: "thin",
+          };
+        } else {
+          ws[key]["s"] = {
+            font: {
+              sz: 10,
             },
-            right: {
-              style: "thin",
+            alignment: {
+              horizontal: "center",
+              vertical: "center",
+              wrapText: true,
             },
-          },
-        };
+          };
+        }
       }
     }
 
@@ -146,7 +121,7 @@ export class ExcelService {
       filename
     );
   }
-
+  // 打开下载
   openDownload(url: any, saveName: any) {
     if (typeof url == "object" && url instanceof Blob) {
       url = URL.createObjectURL(url); // 创建blob地址
@@ -179,7 +154,8 @@ export class ExcelService {
     aLink.dispatchEvent(event);
   }
 
-  getByteLen(val: any) {
+  // 字符串长度
+  getByteLen(val: string) {
     let len = 0;
     for (var i = 0; i < val.length; i++) {
       var length = val.charCodeAt(i);
