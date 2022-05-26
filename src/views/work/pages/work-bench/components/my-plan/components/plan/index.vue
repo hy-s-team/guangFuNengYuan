@@ -1,15 +1,16 @@
 <style scoped lang="less">
-@import "../../../../../../assets/less/compute/compute.less";
+@import "../../../../../../../../assets/less/work/workbench/plan/plan.less";
 </style>
 
 <script setup lang="ts">
+// @ts-ignore
 import Exc from "./components/from.vue";
-import { computed, reactive, ref } from "vue";
+import { defineProps, reactive, ref } from "vue";
 import {
   getAllNBQ,
   getCapacity,
-} from "./../../../../../../assets/api/compute/compute";
-import { ExcelService } from "../../../../../../utils/exportToExcel";
+} from "./../../../../../../../../assets/api/plan/plan";
+import { ExcelService } from "../../../../../../../../utils/exportToExcel";
 type excelMap = {
   名称: string;
   序号: string;
@@ -25,7 +26,9 @@ type excelMap = {
         本组件
 */
 const exc = ref();
-
+// 拿到父组件资源
+const props = defineProps(["work"]);
+// console.log(props.work.work.data.menu.workbench.show, "props");
 const compute = reactive({
   init: () => {
     // 获取所有的逆变器
@@ -257,10 +260,8 @@ compute.init();
 </script>
 
 <template>
-  <div class="compute">
+  <div class="plan">
     <div class="pop">
-      <div class="pop-title"></div>
-
       <div class="pop-content">
         <div class="content">
           <div></div>

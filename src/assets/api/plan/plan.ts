@@ -1,4 +1,4 @@
-import { get, post } from "./../../lib/axios";
+import { get, post } from "../../lib/axios";
 
 /**
  * 根据逆变器以及发电量获得预期

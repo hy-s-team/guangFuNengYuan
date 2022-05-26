@@ -1,20 +1,16 @@
-@import "./../p.less";
+@import "./../../../p.less";
 
-.compute {
+.plan {
   .full;
   .flex-center;
   font-size: 12px;
-
   .pop {
-    .h;
-    width: 80%;
+    .full;
     display: flex;
     flex-direction: column;
-    .pop-title{
-      flex: 1;
-    }
 
-    .pop-content{
+
+    .pop-content {
       flex: 8;
       display: flex;
       justify-content: space-between;
@@ -24,78 +20,81 @@
         width: 80%;
         display: flex;
         flex-direction: column;
-        .form{
+
+        .form {
           .w;
           flex: 1;
           display: flex;
           flex-direction: column;
-          .form-title{
+
+          .form-title {
             .w;
             height: 10%;
             .flex-center;
-            background-color: rgb(242,243,245);
-            >p{
+            background-color: rgb(242, 243, 245);
+
+            >p {
               font-size: 24px;
               letter-spacing: 3px;
               font-weight: 700;
             }
           }
 
-          .form-content{
+          .form-content {
             height: 80%;
           }
 
-          .from-msg{
+          .from-msg {
             height: 10%;
           }
 
 
         }
 
-        .succ{
+        .succ {
           color: black;
           font-size: 15px;
         }
       }
-  
+
       .menu {
         .h;
         width: 20%;
         display: flex;
         flex-direction: column;
-        // border: 1px solid gray;
+        border-left: 1px solid rgb(210, 212, 215);
 
-  
+
         >div {
           border-bottom: 1px solid rgb(210, 212, 215);
         }
-  
+
         >.title {
           .w;
           height: 5%;
           display: flex;
           justify-content: space-between;
           .flex-column-center;
-  
+
           >div {
             font-size: 13px;
             margin-left: 12px;
             font-weight: 700;
           }
-  
+
           >i {
             width: 16px;
             height: 16px;
             font-size: 16px;
             margin-right: 12px;
             .iconfont;
-  
+
             &:hover {
               border-radius: 4px;
             }
           }
         }
-  
+
         // 一级标签通用
         .menu-first-title {
           .w;
@@ -103,7 +102,7 @@
           font-weight: 700;
           .flex-column-center;
           max-height: 40px;
-  
+
           >div {
             font-weight: 600;
             font-size: 13px;
@@ -112,13 +111,13 @@
             padding-left: 5px;
           }
         }
-  
+
         // 一级标签的盒子居中
         .menu-first-div-info {
           height: 75%;
           flex-direction: column;
           .flex-center;
-  
+
           >div {
             width: 88%;
             flex: 1;
@@ -126,7 +125,7 @@
             justify-content: space-between;
             max-height: 50px;
             .flex-column-center;
-  
+
             >p {
               color: rgb(135, 145, 157);
               .flex-column-center;
@@ -134,76 +133,76 @@
               min-width: 25%;
               font-size: 12px;
             }
-  
+
           }
         }
-  
+
         // 基本属性
         .attr {
           .w;
           min-height: 25%;
           flex-direction: column;
-  
+
           >.title {
             .menu-first-title;
           }
-  
+
           >.info {
             .menu-first-div-info;
-  
+
             .effect {
               .radio {
                 margin-left: 0px;
                 width: 75%;
               }
             }
-  
+
             .load>div {
               min-width: 75%;
               color: #87919d;
             }
           }
         }
-  
+
         // 逆变器
         .nbq {
           .w;
           min-height: 25%;
           flex-direction: column;
-  
+
           >.title {
             .menu-first-title;
           }
-  
+
           >.info {
             .menu-first-div-info;
-  
+
             .type>.radio {
               min-width: 75%;
             }
-  
-            .num >div{
+
+            .num>div {
               max-width: 100px;
               margin-right: 120px;
             }
           }
-  
+
         }
-  
+
         // 电量
         .electric {
           .w;
           min-height: 25%;
           flex-direction: column;
-  
+
           >.title {
             .menu-first-title;
           }
-  
+
           >.info {
             display: flex;
             justify-content: center;
-  
+
             .needs {
               width: 88%;
               max-height: 40px;
@@ -211,34 +210,33 @@
               display: flex;
               justify-content: space-between;
               .flex-column-center;
-  
+
               >p {
                 min-width: 25%;
               }
-  
-  
+
+
             }
           }
         }
       }
-  
+
       .menu>:last-child {
         border-bottom: none;
       }
     }
 
-    .pop-footer{
+    .pop-footer {
       flex: 1;
-      .footer{
+
+      .footer {
         .full;
         display: flex;
         .flex-column-center;
         justify-content: space-between;
-      border-top: 1px solid rgb(210, 212, 215);
+        border-top: 1px solid rgb(210, 212, 215);
       }
     }
   }
 
 }
-
-

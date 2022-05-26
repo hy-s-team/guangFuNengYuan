@@ -1,7 +1,7 @@
 <style lang="less" scoped></style>
 <script setup lang="ts">
-import { reactive, ref, defineProps } from "vue";
-import { getAllNBQ } from "./../../../../../../../assets/api/compute/compute";
+import { reactive, ref, defineProps, defineComponent } from "vue";
+import { getAllNBQ } from "./../../../../../../../../../assets/api/plan/plan";
 const excel = reactive({
   xTable: ref(),
   init: () => {
@@ -53,9 +53,8 @@ const excel = reactive({
     price: 0,
     total: 0,
   },
-
+  // 所有机器的信息
   allmachineInfo: <any>[],
-
   // 获取所有的机器信号
   getAll: async () => {
     let res: any = await getAllNBQ();

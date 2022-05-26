@@ -5,24 +5,41 @@ const routes: Array<RouteRecordRaw> = [
     path: "/",
     name: "index",
     component: () => import("../views/index.vue"),
+    redirect: "/work/work-bench",
     children: [
       {
-        path: "/compute",
-        name: "compute",
-        component: () => import("../views/index/views/compute/index.vue"),
+        path: "/work",
+        name: "work",
+        component: () => import("./../views/work/index.vue"),
         children: [
           {
-            path: "compute-1",
-            name: "compute-1",
+            path: "work-bench",
+            name: "work-bench",
+            component: () => import("../views/work/pages/work-bench/index.vue"),
+          },
+
+          {
+            path: "recovery",
+            name: "recovery",
+            component: () => import("../views/work/pages/recovery/index.vue"),
+          },
+          {
+            path: "product-lib",
+            name: "product-lib",
             component: () =>
-              import("../views/index/views/compute/pages/compute-1/index.vue"),
+              import("../views/work/pages/product-lib/index.vue"),
+          },
+          {
+            path: "collect",
+            name: "collect",
+            component: () => import("../views/work/pages/collect/index.vue"),
           },
         ],
       },
       {
         path: "/login",
         name: "login",
-        component: () => import("../views/index/views/login/index.vue"),
+        component: () => import("../views/login/index.vue"),
       },
     ],
   },
