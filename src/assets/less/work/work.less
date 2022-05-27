@@ -6,6 +6,7 @@
     flex-direction: column;
 
     .title {
+        .w;
         height: 5%;
         background-color: rgb(244, 247, 254);
     }
@@ -26,43 +27,47 @@
             .tab-up {
                 height: 20%;
                 flex-direction: column;
-                .flex-center;
                 justify-content: space-between;
+                .flex-center;
 
                 >div {
                     flex: 1;
-                    font-size: 12px;
                     .flex-column-center;
-                    width: 112px;
-                    max-height: 32px;
-                    justify-content: flex-start;
 
-                    >i {
-                        font-size: 20px;
-                        margin-left: 12px;
-                    }
+                    >div {
+                        min-height: 32px;
+                        font-size: 12px;
+                        width: 112px;
+                        .flex-column-center;
+                        justify-content: flex-start;
 
-                    >p {
-                        margin-left: 8px;
-                    }
+                        >i {
+                            font-size: 20px;
+                            margin-left: 12px;
+                        }
 
-                    &:hover {
-                        border-radius: 4px;
-                        opacity: 0.6;
-                        background-color: rgb(88, 106, 151);
-                        color: white;
+                        >p {
+                            margin-left: 8px;
+                        }
+
+                        &:hover {
+                            border-radius: 4px;
+                            opacity: 0.6;
+                            background: linear-gradient(90deg, #257AFF 0%, rgba(106, 140, 154, 0.89) 100%);
+                            color: white;
+                        }
                     }
                 }
 
 
                 .selected-menu {
                     border-radius: 4px;
-                    background-color: rgb(22, 93, 255);
+                    background: linear-gradient(90deg, #257AFF 0%, rgba(37, 190, 255, 0.89) 100%);
                     color: white;
 
                     &:hover {
                         opacity: 1;
-                        background-color: rgb(22, 93, 255);
+                        background: linear-gradient(90deg, #257AFF 0%, rgba(37, 190, 255, 0.89) 100%);
                     }
                 }
 
@@ -74,12 +79,42 @@
             }
 
             .tab-down {
-                height: 80%;
+                height: 5%;
+                .flex-center;
+
+                .set-up {
+                    .h;
+                    width: 70%;
+                    .flex-center;
+                    .flex-column-center;
+                    justify-content: flex-start;
+
+                    >i {
+                        font-size: 20px;
+                    }
+
+                    >p {
+                        font-size: 14px;
+                        margin-left: 9.73px;
+                    }
+
+                    &:hover {
+                        .iconfont;
+                    }
+                }
             }
         }
 
         .coms {
             width: 95%;
+        }
+    }
+
+    >.plan{
+        .full;
+        position: absolute;
+        .add-plan{
+            .full
         }
     }
 }

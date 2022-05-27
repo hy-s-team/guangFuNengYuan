@@ -1,16 +1,14 @@
 <style scoped lang="less">
-@import "../../../../../../../../assets/less/work/workbench/plan/plan.less";
+@import "../../../../../assets/less/work/workbench/plan/plan.less";
 </style>
 
 <script setup lang="ts">
 // @ts-ignore
 import Exc from "./components/from.vue";
 import { defineProps, reactive, ref } from "vue";
-import {
-  getAllNBQ,
-  getCapacity,
-} from "./../../../../../../../../assets/api/plan/plan";
-import { ExcelService } from "../../../../../../../../utils/exportToExcel";
+import { getAllNBQ, getCapacity } from "../../../../../assets/api/plan/plan";
+import { ExcelService } from "../../../../../utils/exportToExcel";
+import bus from "./../../../../../utils/eventbus/eventsbus";
 type excelMap = {
   名称: string;
   序号: string;
@@ -35,6 +33,7 @@ const compute = reactive({
     compute.methods.getAllNBQ();
   },
   methods: {
+    /** 获取所有的设备 */
     getAllNBQ: async () => {
       let res: any = await getAllNBQ();
       if (!res) return;
@@ -45,6 +44,7 @@ const compute = reactive({
       console.log(datas, "datas所有逆变器");
     },
 
+    /* 解构设备信息 */
     addMachineModel: (data: any) => {
       let map: any = {};
       const {
@@ -65,6 +65,11 @@ const compute = reactive({
         inverter_up_limit: inverter_up_limit,
       };
       compute.coms.machineModel.data.push(map);
+    },
+
+    /* 退出新建方案页面 */
+    backFromAddPlan: () => {
+      bus.$emit("back-from-add-plan");
     },
   },
   // 内部组件
@@ -260,7 +265,7 @@ compute.init();
 </script>
 
 <template>
-  <div class="plan">
+  <div class="add-plan">
     <div class="pop">
       <div class="pop-content">
         <div class="content">
@@ -306,101 +311,137 @@ compute.init();
         </div>
 
         <div class="menu">
-          <div class="title">
-            <div>新建方案</div>
-            <i class="iconfont icon-guanbi"></i>
-          </div>
-
-          <div class="attr">
+          <div class="menu-up">
             <div class="title">
-              <div>基本属性</div>
-            </div>
-            <div class="info">
-              <!-- 方案名称 -->
-              <div class="name">
-                <p>方案名称:</p>
-                <el-input
-                  class="input"
-                  v-model="compute.data.planName"
-                  placeholder="请输入"
-                />
-              </div>
-              <!-- 用途 -->
-              <div class="effect">
-                <p>用途:</p>
-                <el-radio-group v-model="compute.data.effect" class="radio">
-                  <el-radio label="户用" size="small">户用</el-radio>
-                  <el-radio label="工商" size="small">工商</el-radio>
-                </el-radio-group>
-              </div>
-              <!-- 负载 -->
-              <div class="load">
-                <p>负载:</p>
-                <div>三项负载</div>
-              </div>
-            </div>
-          </div>
-
-          <!-- 逆变器 -->
-          <div class="nbq">
-            <div class="title">
-              <div>逆变器</div>
+              <div>新建方案</div>
+              <i
+                class="iconfont icon-guanbi"
+                @click="
+                  () => {
+                    compute.methods.backFromAddPlan();
+                  }
+                "
+              ></i>
             </div>
 
-            <div class="info">
-              <div class="type">
-                <p>类型:</p>
-                <el-radio-group v-model="compute.data.nbqType" class="radio">
-                  <el-radio label="储能逆变器" size="small"
-                    >储能逆变器</el-radio
-                  >
-                  <el-radio label="光储一体机" size="small"
-                    >光储一体机</el-radio
-                  >
-                </el-radio-group>
+            <div class="attr">
+              <div class="attr-title">
+                <div>基本属性</div>
               </div>
-              <div class="kw">
-                <p>功率(KW):</p>
-                <el-tree-select
-                  placeholder="请选择"
-                  v-model="compute.coms.machineModel.value"
-                  :data="compute.coms.machineModel.data"
-                  check-strictly
-                  @change="
+              <div class="attr-info">
+                <!-- 方案名称 -->
+                <div class="name">
+                  <p>方案名称:</p>
+                  <el-input
+                    class="input"
+                    v-model="compute.data.planName"
+                    placeholder="请输入"
+                  />
+                </div>
+                <!-- 用途 -->
+                <div class="effect">
+                  <p>用途:</p>
+                  <el-radio-group v-model="compute.data.effect" class="radio">
+                    <el-radio label="户用" size="small">户用</el-radio>
+                    <el-radio label="工商" size="small">工商</el-radio>
+                  </el-radio-group>
+                </div>
+                <!-- 负载 -->
+                <div class="load">
+                  <p>负载:</p>
+                  <div>三项负载</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 逆变器 -->
+            <div class="nbq">
+              <div class="nbq-title">
+                <div>逆变器</div>
+              </div>
+
+              <div class="nbq-info">
+                <div class="type">
+                  <p>类型:</p>
+                  <el-radio-group v-model="compute.data.nbqType" class="radio">
+                    <el-radio label="储能逆变器" size="small"
+                      >储能逆变器</el-radio
+                    >
+                    <el-radio label="光储一体机" size="small"
+                      >光储一体机</el-radio
+                    >
+                  </el-radio-group>
+                </div>
+                <div class="kw">
+                  <p>功率(KW):</p>
+                  <el-tree-select
+                    placeholder="请选择"
+                    v-model="compute.coms.machineModel.value"
+                    :data="compute.coms.machineModel.data"
+                    check-strictly
+                    @change="
               (id:string) => {
                 compute.coms.machineModel.methods.select(id);
               }
             "
-                />
+                  />
+                </div>
+                <div class="num">
+                  <p>数量(个)</p>
+                  <el-input v-model="compute.data.nbqNumber" placeholder="" />
+                </div>
               </div>
-              <div class="num">
-                <p>数量(个)</p>
-                <el-input v-model="compute.data.nbqNumber" placeholder="" />
+            </div>
+
+            <!-- 电量 -->
+            <div class="electric">
+              <div class="electric-title">
+                <div>电量</div>
+              </div>
+              <div class="electric-info">
+                <div class="needs">
+                  <p>需求电量:</p>
+                  <el-input
+                    v-model="compute.coms.energy.value"
+                    placeholder="请输入发电量"
+                  >
+                    <template #append>KWH</template>
+                  </el-input>
+                </div>
               </div>
             </div>
           </div>
 
-          <!-- 电量 -->
-          <div class="electric">
-            <div class="title">
-              <div>电量</div>
-            </div>
-            <div class="info">
-              <div class="needs">
-                <p>需求电量:</p>
-                <el-input
-                  v-model="compute.coms.energy.value"
-                  placeholder="请输入发电量"
+          <div class="menu-lower">
+            <div class="footer">
+              <div></div>
+              <div class="footer-fn">
+                <el-button @click="() => {}">取消</el-button>
+                <el-button
+                  type="primary"
+                  @click="
+                    () => {
+                      compute.data.methods.exportExcel();
+                    }
+                  "
+                  >导出表格</el-button
                 >
-                  <template #append>KWH</template>
-                </el-input>
+                <el-button
+                  type="primary"
+                  @click="
+                    () => {
+                      compute.coms.sub.methods.subInfo();
+                    }
+                  "
+                  >方案生产</el-button
+                >
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      <div class="pop-footer">
+      <!-- <div class="pop-footer">
         <div class="footer">
           <div></div>
           <div class="footer-fn">
@@ -425,7 +466,7 @@ compute.init();
             >
           </div>
         </div>
-      </div>
+      </div> -->
     </div>
   </div>
 </template>

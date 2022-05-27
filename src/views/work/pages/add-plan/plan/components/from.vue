@@ -1,7 +1,7 @@
 <style lang="less" scoped></style>
 <script setup lang="ts">
 import { reactive, ref, defineProps, defineComponent } from "vue";
-import { getAllNBQ } from "./../../../../../../../../../assets/api/plan/plan";
+import { getAllNBQ } from "../../../../../../assets/api/plan/plan";
 const excel = reactive({
   xTable: ref(),
   init: () => {

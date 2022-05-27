@@ -1,0 +1,79 @@
+@import "./../../../p.less";
+
+.my-plan {
+    .full;
+    
+    display: flex;
+    flex-direction: column;
+
+    .title {
+        height: 5%;
+        justify-content: flex-start;
+        .flex-column-center;
+        .search{
+            width: 220px;
+            height: 32px;
+            margin-left: 24px; 
+        }
+    }
+
+    .menu {
+        height: 5%;
+        display: flex;
+        justify-content: space-between;
+
+        >.left {
+            min-width: 10%;
+            justify-content: flex-start;
+            .flex-column-center;
+            font-size: 12px;
+            margin-left: 24px;
+            .txt {}
+
+            .sel {
+                margin-left: 16px;
+                border-left: 1px solid #C9CDD4;
+                display: flex;
+                justify-content: space-between;
+                padding: 0px 8px 0px 8px;
+                >div{
+                padding: 0px 8px 0px 8px;
+                }
+            }
+        }
+
+        >.left>div:first-child {
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        >.right {
+            width: 20%
+        }
+    }
+
+    .content {
+        .w;
+        height: 90%;
+        display: flex;
+        align-content: flex-start;
+        flex-wrap: wrap;
+        overflow: scroll;
+        margin: 18px 12px 18px 12px;
+
+        >div {
+            width: 268px;
+            height: 174px;
+            background-color: rgb(228, 238, 254);
+            .flex-center;
+            margin: 9px 12px 9px 12px;
+            border-radius: 4px;
+        }
+    }
+ 
+    .plan {
+        .full;
+        position: fixed;
+    }
+ 
+}
