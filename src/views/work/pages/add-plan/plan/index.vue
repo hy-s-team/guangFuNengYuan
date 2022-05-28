@@ -127,7 +127,6 @@ const compute = reactive({
     // transJSON: <any>[],
     transJSON: <any>[],
     // 表格title
-    // excelTitle: ["光伏能源设备配置单", "", "", "", "", "", ""],
     excelTitle: ["光伏能源设备配置单", "", "", "", "", "", ""],
     // 表格列表
     excelList: ["序号", "名称", "类型", "规格", "数量", "价格", "总价合计"],
