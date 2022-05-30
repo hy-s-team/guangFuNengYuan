@@ -77,27 +77,31 @@ const work = reactive({
 </script>
 
 <template>
-  <div class="work animate__animated animate__fadeInDown">
-    <div class="title"></div>
-    <div class="content">
+  <div class="work">
+    <div class="work-content">
       <div class="menu">
         <div class="tab-up">
-          <div v-for="(info, name) in work.data.menu">
-            <div
-              :class="work.data.selectMenu === info.name ? 'selected-menu' : ''"
-              @click="
-                () => {
-                  work.data.selectMenu = info.name;
-                  work.methods.changeComs(info, name);
-                }
-              "
-            >
-              <i :class="`iconfont ${info.icon}`"></i>
-              <p>{{ info.name }}</p>
+          <div class="avatar"></div>
+          <div class="tab-menu">
+            <div v-for="(info, name) in work.data.menu">
+              <div
+                :class="
+                  work.data.selectMenu === info.name ? 'selected-menu' : ''
+                "
+                @click="
+                  () => {
+                    work.data.selectMenu = info.name;
+                    work.methods.changeComs(info, name);
+                  }
+                "
+              >
+                <i :class="`iconfont ${info.icon}`"></i>
+                <p>{{ info.name }}</p>
+              </div>
             </div>
           </div>
         </div>
-        <div class="tab-down">
+        <div class="tab-lower">
           <div class="set-up">
             <i class="iconfont icon-caidan"></i>
             <p>设置</p>
@@ -108,10 +112,7 @@ const work = reactive({
         <router-view />
       </div>
     </div>
-    <div
-      class="plan animate__animated animate__backInRight"
-      v-show="work.data.showPlan"
-    >
+    <div class="plan" v-show="work.data.showPlan">
       <Plan></Plan>
     </div>
   </div>

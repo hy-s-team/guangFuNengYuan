@@ -1,84 +1,92 @@
 @import "./../p.less";
-
+@import "../base.less";
 .work {
     .full;
     display: flex;
     flex-direction: column;
+    background-color: #fff;
 
-    .title {
-        .w;
-        height: 5%;
-        background-color: rgb(244, 247, 254);
-    }
 
-    .content {
-        height: 95%;
+    .work-content {
+        .h;
         display: flex;
 
         .menu {
-            min-width: 144px;
-            width: 5%;
+            width: 144px;
             color: #4E5969;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            background-color: rgb(244, 247, 254);
 
             .tab-up {
-                height: 20%;
+                height: auto;
                 flex-direction: column;
-                justify-content: space-between;
                 .flex-center;
+                justify-content: space-between;
 
-                >div {
-                    flex: 1;
-                    .flex-column-center;
+                // 头像
+                .avatar {
+                    .w;
+                    height: 150px;
+                }
+
+                // 按钮
+                >.tab-menu {
+                    height: auto;
 
                     >div {
-                        min-height: 32px;
-                        font-size: 12px;
-                        width: 112px;
+                        flex: 1;
                         .flex-column-center;
-                        justify-content: flex-start;
+                        height: 52px;
 
-                        >i {
-                            font-size: 20px;
-                            margin-left: 12px;
-                        }
+                        >div {
+                            min-height: 32px;
+                            font-size: 12px;
+                            width: 112px;
+                            .flex-column-center;
+                            justify-content: flex-start;
 
-                        >p {
-                            margin-left: 8px;
-                        }
+                            >i {
+                                font-size: 20px;
+                                margin-left: 12px;
+                            }
 
-                        &:hover {
-                            border-radius: 4px;
-                            opacity: 0.6;
-                            background: linear-gradient(90deg, #257AFF 0%, rgba(106, 140, 154, 0.89) 100%);
-                            color: white;
+                            >p {
+                                margin-left: 8px;
+                            }
+
+                            &:hover {
+                                border-radius: 4px;
+                                opacity: 0.6;
+                                background: linear-gradient(90deg, #257AFF 0%, rgba(106, 140, 154, 0.89) 100%);
+                                color: white;
+                            }
                         }
                     }
                 }
 
 
+                >.tab-menu >div:last-child{
+                    border-top: 1px solid #E5E6EB;
+                }
+
+                // 选中样式
                 .selected-menu {
                     border-radius: 4px;
-                    background: linear-gradient(90deg, #257AFF 0%, rgba(37, 190, 255, 0.89) 100%);
+                    background: @cBgc-B-b;
                     color: white;
 
                     &:hover {
                         opacity: 1;
-                        background: linear-gradient(90deg, #257AFF 0%, rgba(37, 190, 255, 0.89) 100%);
+                        background: @cBgc-B-a;
                     }
                 }
 
 
             }
 
-            .tab-up>div:last-child {
-                border-top: 1px solid #E5E6EB;
-            }
 
-            .tab-down {
+            .tab-lower {
                 height: 5%;
                 .flex-center;
 
@@ -110,10 +118,11 @@
         }
     }
 
-    >.plan{
+    >.plan {
         .full;
         position: absolute;
-        .add-plan{
+
+        .add-plan {
             .full
         }
     }

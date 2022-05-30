@@ -1,37 +1,65 @@
+@import './base.less';
+
 .el-input {
   background-color: rgb(242, 243, 245);
   height: 30px !important;
+
   >div {
     background-color: rgb(242, 243, 245);
   }
 }
 
-.el-input-group__append{
+.el-input-group__append {
   max-width: 50px;
-  color:rgb(34,38,46) !important;
+  color: rgb(34, 38, 46) !important;
   font-size: 12px;
   font-weight: 600;
 }
 
-.el-button--primary{
+.el-button--primary {
   font-size: 12px;
-  background-color: rgb(22,93,255) !important;
+  background-color: rgb(22, 93, 255) !important;
 }
 
-.el-input__inner{
+.el-input__inner {
   font-weight: 700;
   font-size: 12px !important;
 }
 
-.el-icon >svg{
+.el-icon>svg {
   color: rgb(27, 25, 25);
   font-size: 12px;
 }
 
 
-.el-radio-group .is-checked{
+.el-radio-group .is-checked {
   font-weight: 600 !important;
-  >span .el-radio__inner{
-    background-color: rgb(22,93,255);
+
+  >span .el-radio__inner {
+    background-color: rgb(22, 93, 255);
+  }
+}
+
+
+.my-plan {
+  .el-input>div {
+    background-color: #fff;
+    color: @cNoSelectd;
+
+    >input {
+      font-weight: 400 !important;
+      font-family: 'PingFang SC' !important;
+      font-size: 12px !important;
+    }
+  }
+}
+
+
+.add-plan {
+  .el-textarea__inner {
+    box-shadow: none;
+    border: 1px solid rgb(232,234,236);
+    border-right:  2px solid rgb(232,234,236);
+    border-radius: 0px;
   }
 }

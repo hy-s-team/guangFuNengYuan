@@ -34,7 +34,12 @@ myPlan.methods.init();
           <div>所有状态</div>
         </div>
       </div>
-      <div class="right"></div>
+      <div class="right">
+        <div class="mode-sel">
+          <div class="iconfont icon-xuanzhong"></div>
+          <div class="iconfont icon-moxing_xuanzhong"></div>
+        </div>
+      </div>
     </div>
     <div class="content">
       <div
@@ -43,11 +48,14 @@ myPlan.methods.init();
             myPlan.methods.addNewPlan();
           }
         "
+        class="add-new-plan"
       >
         <p>+</p>
         <p>新建方案</p>
       </div>
-      <div v-for="(i, index) in new Array(50).fill('')">{{ index }}</div>
+      <div class="plan-info" v-for="(i, index) in new Array(50).fill('')">
+        {{ `方案:${index}` }}
+      </div>
     </div>
   </div>
 </template>

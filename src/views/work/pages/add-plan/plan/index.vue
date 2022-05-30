@@ -107,6 +107,7 @@ const compute = reactive({
           console.log(res, "res-subInfo");
           const { msg, success, data } = res;
           compute.data.success = success;
+          console.log(success, "success---是否成功~~~");
           if (!data) {
             compute.data.msg = msg;
           } else {
@@ -155,6 +156,9 @@ const compute = reactive({
     nbqType: "光储一体机",
     // 逆变器个数
     nbqNumber: 0,
+    // 表格说明
+    excExplain:
+      "说明: 1.质保期:5年; 2税票及税率:此报价已包含13%增值税专用发票和运费; 3.生效日期:2022-3-5 4.付款方式:预付; 5.送货方式:送至需XXXXXXXXXXXX; 6。包装方式:原包装",
 
     methods: {
       // 导出表格
@@ -201,15 +205,6 @@ const compute = reactive({
       addFooterJSON(excel: any) {
         const { dataFooter } = excel;
         const { num, price, total } = dataFooter;
-        // let totalMap = {
-        //   名称: "",
-        //   序号: "合计",
-        //   类型: "",
-        //   规格: "",
-        //   数量: num,
-        //   价格: price,
-        //   总价合计: total,
-        // };
         let totalMap = ["合计", "", "", "", num, price, total];
         compute.data.transJSON.push(totalMap);
       },
@@ -268,42 +263,50 @@ compute.init();
     <div class="pop">
       <div class="pop-content">
         <div class="content">
-          <div></div>
           <div class="form">
             <div class="form-title">
               <p>光伏能源设备配置单</p>
             </div>
             <div class="form-content">
               <Exc ref="exc"></Exc>
-            </div>
-            <div class="form-msg">
-              <div :style="compute.data.success ? 'color:white' : 'color:red'">
-                <div class="err" v-show="!compute.data.success">
-                  {{ compute.data.msg }}
+              <div class="exc-info">
+                <!-- 表格信息 -->
+                <div class="info-electric">
+                  <div
+                    :style="compute.data.success ? 'color:white' : 'color:red'"
+                  >
+                    <div class="err" v-show="!compute.data.success">
+                      {{
+                        `${
+                          compute.data.msg === undefined
+                            ? ""
+                            : `输入错误,请重新输入正确数值:${compute.data.msg}`
+                        }`
+                      }}
+                    </div>
+                    <div class="succ" v-show="compute.data.success">
+                      <p>
+                        经济型实际发电量:{{
+                          compute.data.msg?.economic_capacity
+                            ? compute.data.msg?.economic_capacity
+                            : "无数据"
+                        }}
+                      </p>
+                    </div>
+                  </div>
                 </div>
-                <div class="succ" v-show="compute.data.success">
-                  <p>
-                    经济型电池数量:{{
-                      compute.data.msg?.economic_battery_number
-                        ? compute.data.msg?.economic_battery_number
-                        : "无数据"
-                    }}
-                  </p>
-                  <p>
-                    经济型实际发电量:{{
-                      compute.data.msg?.economic_capacity
-                        ? compute.data.msg?.economic_capacity
-                        : "无数据"
-                    }}
-                  </p>
-                  <p>
-                    经济型错误原因:{{
-                      compute.data.msg?.economic_errmsg
-                        ? compute.data.msg?.economic_errmsg
-                        : "无数据"
-                    }}
-                  </p>
-                </div>
+
+                <!-- 表格说明 -->
+                <el-input
+                  class="exc-explain-input"
+                  resize="none"
+                  v-model="compute.data.excExplain"
+                  :autosize="{ minRows: 2, maxRows: 4 }"
+                  type="textarea"
+                  placeholder="Please input"
+                />
+
+                <div class="info-explain"></div>
               </div>
             </div>
           </div>
@@ -439,33 +442,6 @@ compute.init();
           </div>
         </div>
       </div>
-
-      <!-- <div class="pop-footer">
-        <div class="footer">
-          <div></div>
-          <div class="footer-fn">
-            <el-button @click="() => {}">取消</el-button>
-            <el-button
-              type="primary"
-              @click="
-                () => {
-                  compute.data.methods.exportExcel();
-                }
-              "
-              >导出表格</el-button
-            >
-            <el-button
-              type="primary"
-              @click="
-                () => {
-                  compute.coms.sub.methods.subInfo();
-                }
-              "
-              >方案生产</el-button
-            >
-          </div>
-        </div>
-      </div> -->
     </div>
   </div>
 </template>
