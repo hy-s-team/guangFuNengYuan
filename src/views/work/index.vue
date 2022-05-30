@@ -112,7 +112,8 @@ const work = reactive({
         <router-view />
       </div>
     </div>
-    <div class="plan" v-show="work.data.showPlan">
+    <!-- <div class="plan" v-show="work.data.showPlan"> -->
+    <div class="plan" v-show="true">
       <Plan></Plan>
     </div>
   </div>

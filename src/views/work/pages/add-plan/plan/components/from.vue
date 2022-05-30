@@ -6,17 +6,11 @@ import { getAllNBQ } from "../../../../../../assets/api/plan/plan";
 const xTable = ref();
 const excel = reactive({
   init: () => {
-    // 先计算一下总价
-    excel.methods.allTotal();
     // 获取所有机器信息
     excel.methods.getAll();
 
-    let timer = setTimeout(() => {
-      // 默认选中必选的信息
-      excel.methods.selectDefaultMode();
-
-      clearTimeout(timer);
-    });
+    // 先计算一下总价
+    excel.methods.allTotal();
   },
   data: {
     // 标题
@@ -58,8 +52,8 @@ const excel = reactive({
       },
       {
         name: "空调系统",
-        num: 0,
-        price: 0,
+        num: 10,
+        price: 85,
         total: 0,
         remarks: "",
         "all-total": 0,
@@ -94,14 +88,15 @@ const excel = reactive({
     allmachineInfo: <any>[],
 
     // 集装箱
+
+    // 选中的集合
+    selectedArray: <any | null>[],
+
+    // 合计数据
+    totalArray: <string | any>["合计", null, null, null, null, 0],
   },
 
   methods: {
-    // 选择集装箱
-    selectJiZhuangXiang: (val: any) => {
-      console.log(123, "123", val);
-    },
-
     // 获取所有的机器信号
     getAll: async () => {
       let res: any = await getAllNBQ();
@@ -127,19 +122,9 @@ const excel = reactive({
 
     // 销量合计
     countAmount: (row: any) => {
-      console.log(row, "data");
-
+      excel.data.selectedArray.map((i: object) => {});
       let total = Number(row.num) * Number(row.price);
       return total;
-    },
-
-    // 所有销量合计
-    countAllAmount: (data: any) => {
-      let count = 0;
-      data.forEach((row: any) => {
-        count += excel.methods.countAmount(row);
-      });
-      return count;
     },
 
     // 更新数量
@@ -157,84 +142,124 @@ const excel = reactive({
       $table.updateFooter();
     },
 
-    // 数量和
+    // 数量和  必须是选中的行列
     sumNum(list: any, field: string) {
       let count = 0;
-      list.forEach((item: any) => {
-        count += Number(item[field]);
+      list.map((item: any) => {
+        excel.data.selectedArray.map((i: any) => {
+          if (i.name === item.name) {
+            count += Number(item[field]);
+          }
+        });
       });
       return count;
     },
 
     // 计算总数
     allTotal: () => {
+      // 获取的数据价格汇总 遍历计算
       excel.data.dataList.map((item: any, index: number) => {
         let n = excel.data.dataList[index]["num"];
         let p = excel.data.dataList[index]["price"];
         excel.data.dataList[index]["total"] = n * p;
       });
-      excel.data.dataFooter.total = excel.methods.sumNum(
-        excel.data.dataList,
-        "total"
-      );
+
+      let allTotal = excel.methods.sumNum(excel.data.dataList, "total");
+
+      // 全部的价格总和
+      excel.data.dataFooter.total = allTotal;
+
+      // 再次合计计算
+      excel.methods.footerMethod();
+    },
+
+    // 重新计算
+    computeAgain() {
+      excel.methods.allTotal();
     },
 
     // 合计计算
-    footerMethod({ columns, data }: any) {
-      return [
-        columns.map((column: any, columnIndex: any) => {
-          let title: string = column?.title;
-          switch (title) {
-            case "序号":
-              return "合计";
-              break;
-            case "数量":
-              // excel.dataFooter.num = excel.sumNum(excel.dataList, "num");
-              // return excel.dataFooter.num;
-              break;
-            case "单价":
-              // excel.dataFooter.price = excel.sumNum(excel.dataList, "price");
-              // return excel.dataFooter.price;
-              break;
-            case "总价":
-              excel.data.dataFooter.total = excel.methods.sumNum(
-                excel.data.dataList,
-                "total"
-              );
-              return excel.data.dataFooter.total;
-              break;
-            default:
-              break;
-          }
-        }),
-      ];
-    },
+    footerMethod: () => {
+      // 合计数据
+      const totalArray = excel.data.totalArray;
 
-    checkMethod() {
-      return true;
+      excel.data.totalArray[
+        totalArray.length - 1
+      ] = `￥${excel.data.dataFooter.total}`;
+
+      // 每次都返回新的信息
+      return [excel.data.totalArray];
     },
 
     // 切换选中的行列
     checkboxChangeEvent({ checked, records, reserves }: any) {
-      const selectName = JSON.stringify(records);
       // console.log(checked ? "勾选事件" : "取消事件");
       // console.log("当前选中的数据：" + selectName);
       // console.log("翻页时其他页的数据：" + reserves);
-      console.log(JSON.parse(selectName), "JSON.parse(selectName)");
+      const selectName = JSON.stringify(records);
+      excel.data.selectedArray = JSON.parse(selectName);
+
+      // 选中
+      if (checked) {
+        excel.methods.computeAgain();
+      } else {
+        // 取消
+        excel.methods.computeAgain();
+      }
     },
 
     // 默认选中出基础的5项以外的数据
     selectDefaultMode() {
       excel.data.dataList.map((i: any, index: number) => {
         if (index >= 5) {
+          // 存放信息
+          excel.data?.selectedArray.push(i);
           xTable?.value.toggleCheckboxRow(excel.data.dataList[index]);
         }
       });
     },
+
+    // 合计计算
+    // footerMethod({ columns, data }: any) {
+    //   return [
+    //     columns.map((column: any, columnIndex: any) => {
+    //       let title: string = column?.title;
+    //       switch (title) {
+    //         case "序号":
+    //           return "合计";
+    //           break;
+    //         case "数量":
+    //           // excel.dataFooter.num = excel.sumNum(excel.dataList, "num");
+    //           // return excel.dataFooter.num;
+    //           break;
+    //         case "单价":
+    //           // excel.dataFooter.price = excel.sumNum(excel.dataList, "price");
+    //           // return excel.dataFooter.price;
+    //           break;
+    //         case "总价":
+    //           excel.data.dataFooter.total = excel.methods.sumNum(
+    //             excel.data.dataList,
+    //             "total"
+    //           );
+    //           return excel.data.dataFooter.total;
+    //           break;
+    //         default:
+    //           break;
+    //       }
+    //     }),
+    //   ];
+    // },
   },
 });
 
-excel.init();
+let timer = setTimeout(() => {
+  // 默认选中必选的信息
+  excel.methods.selectDefaultMode();
+  // 初始化默认事件
+  excel.init();
+
+  clearTimeout(timer);
+});
 
 defineExpose({
   excel,
@@ -257,7 +282,9 @@ defineExpose({
       :edit-config="{ trigger: 'click', mode: 'row' }"
       :data="excel.data.dataList"
       :checkbox-config="{
-        checkMethod: excel.methods.checkMethod,
+        checkMethod: () => {
+          return true;
+        },
         highlight: true,
       }"
       @checkbox-change="excel.methods.checkboxChangeEvent"
