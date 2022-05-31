@@ -97,6 +97,7 @@ const excel = reactive({
 
     addEmptyData: {
       timer: new Date(),
+      isOther: true,
       name: "",
       num: 10,
       price: 10,
@@ -189,22 +190,34 @@ const excel = reactive({
     // 数量和  必须是选中的行列
     sumNum(list: any, field: string) {
       let count = 0;
+      let otherCount = 0;
+      // excel.data.dataList.map((item: any) => {
+      //   xTable.value.getCheckboxRecords().map((i: any) => {
+      //     if (!i.isOther) {
+      //       if (item.name === i.name) {
+      //         count += Number(item[field]);
+      //       }
+      //     } else {
+      //       i.total = i.num * i.price;
+      //       count += Number(i[field]);
+      //       console.log(i, "i");
+      //     }
+      //   });
+      // });
 
-      console.log(
-        xTable.value.getCheckboxRecords(),
-        "xTable.value.getCheckboxRecords()"
-      );
-
-      excel.data.dataList.map((item: any) => {
-        xTable.value.getCheckboxRecords().map((i: any) => {
-          if (item.name === i.name) {
-            console.log(item, "item*----");
-            count += Number(item[field]);
+      xTable.value.getCheckboxRecords().map((i: any) => {
+        if (!i.isOther) {
+          if (i.name === i.name) {
+            count += Number(i[field]);
           }
-        });
+        } else {
+          i.total = i.num * i.price;
+          otherCount += Number(i[field]);
+        }
       });
-      console.log(count, "count---");
-      return count;
+
+      console.log(count, otherCount, "count---");
+      return count + otherCount;
     },
 
     // 计算总数
@@ -269,9 +282,11 @@ const excel = reactive({
       map.num = num;
       map.price = price;
 
-      // 联动
-      excel.methods.linkage(!excel.data.isCheckLinkAge, name);
-      excel.data.isCheckLinkAge = !excel.data.isCheckLinkAge;
+      if (rowIndex === 2 || rowIndex === 3 || rowIndex === 4) {
+        // 联动
+        excel.methods.linkage(!excel.data.isCheckLinkAge, name);
+        excel.data.isCheckLinkAge = !excel.data.isCheckLinkAge;
+      }
 
       excel.methods.computeAgain();
     },
