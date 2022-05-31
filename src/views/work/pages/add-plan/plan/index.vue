@@ -26,7 +26,10 @@ type excelMap = {
 const exc = ref();
 // 拿到父组件资源
 const props = defineProps(["work"]);
-// console.log(props.work.work.data.menu.workbench.show, "props");
+
+// 注册显示表格的事件
+bus.$on("isShow-exc", () => {});
+
 const compute = reactive({
   init: () => {
     // 获取所有的逆变器
@@ -104,7 +107,6 @@ const compute = reactive({
           let capacity = compute.coms.energy.value;
           let inverter_id = Number(compute.coms.machineModel.id);
           let res: any = await getCapacity(capacity, inverter_id);
-          console.log(res, "res-subInfo");
           const { msg, success, data } = res;
           compute.data.success = success;
           console.log(success, "success---是否成功~~~");
@@ -124,29 +126,16 @@ const compute = reactive({
     // 刚加载JSON
     fromJSON: undefined,
     // 最终json
-    // transJSON: [] as excelMap,
-    // transJSON: <any>[],
     transJSON: <any>[],
     // 表格title
-    excelTitle: ["光伏能源设备配置单", "", "", "", "", "", ""],
+    excelTitle: ["光伏能源设备配置单", "", "", "", "", ""],
     // 表格列表
-    excelList: ["序号", "名称", "类型", "规格", "数量", "价格", "总价合计"],
+    excelList: ["序号", "品名", "数量", "单价", "总价", "备注"],
     // 提交后端反馈信息
-    msg: <undefined | string | any | object>undefined,
+    msg: <undefined | string | any>undefined,
     // 电量获得预期
     batteryMsg: <any | undefined | string | object>undefined,
-    // batteryMsg: {
-    //   // 实用型电池数量
-    //   battery_number: "",
-    //   // 支架数量
-    //   bracket_number: "",
-    //   // 实用型实际发电量
-    //   capacity: "",
-    //   // 经济型电池数量
-    //   economic_battery_number: "",
-    //   // 经济型实际发电量
-    //   economic_capacity: "",
-    // } as any,
+    // 是否成功
     success: false,
     // 方案名称
     planName: "",
@@ -158,7 +147,10 @@ const compute = reactive({
     nbqNumber: 0,
     // 表格说明
     excExplain:
-      "说明: 1.质保期:5年; 2税票及税率:此报价已包含13%增值税专用发票和运费; 3.生效日期:2022-3-5 4.付款方式:预付; 5.送货方式:送至需XXXXXXXXXXXX; 6。包装方式:原包装",
+      "说明: 1.质保期:5年; 2税票及税率:此报价已包含13%增值税专用发票和运费; 3.生效日期:2022-3-5 4.付款方式:预付; 5.送货方式:送至需XXXXXXXXXXXX; 6.包装方式:原包装",
+
+    // 是否显示表单
+    isShowForm: false,
 
     methods: {
       // 导出表格
@@ -168,17 +160,19 @@ const compute = reactive({
         compute.data.methods.inputJSON(excel);
         compute.data.methods.getJSON(excel);
         compute.data.methods.addFooterJSON(excel);
+        // 设置新的序号
+        compute.data.methods.setNewSeq();
         console.log(compute.data.transJSON, "compute.data.transJSON");
+
         // return;
         // 导出excel
         const s = new ExcelService();
         s.exportAsExcelFile(compute.data.transJSON, compute.data.planName);
-        // compute.data.transJSON = [];
       },
+
       // 转换JSON
       getJSON: (excel: any) => {
-        console.log(123, "123");
-        const { titleName } = excel;
+        const { titleName } = excel.data;
         let newTitleName = compute.data.methods.reverseMap(titleName);
         compute.data.json.map((equs: any) => {
           let map: any = {};
@@ -192,6 +186,7 @@ const compute = reactive({
         });
       },
 
+      // 数据排序---第三步
       jsonSort(map: any) {
         let arr: string[] = [];
         compute.data.excelList.map((t: string) => {
@@ -203,40 +198,66 @@ const compute = reactive({
 
       // 尾部补充
       addFooterJSON(excel: any) {
-        const { dataFooter } = excel;
+        const { dataFooter } = excel.data;
         const { num, price, total } = dataFooter;
-        let totalMap = ["合计", "", "", "", num, price, total];
+        let totalMap = ["合计", "", "", "", total];
         compute.data.transJSON.push(totalMap);
       },
 
-      // 导入数据---处理顺序
+      // 导入数据---处理顺序---第二步
       inputJSON: (excel: any) => {
         // 导入数据的时候将之前的清空
         compute.data.methods.resetJSON();
-        const { dataList, titleName } = excel;
+        // 列表数据、选中的数据
+        const { dataList, titleName, selectedArray } = excel.data;
+
         // 颠倒名称
         compute.data.fromJSON = compute.data.methods.reverseMap(titleName);
         // 设备列表
         dataList.map((item: any, index: number) => {
-          let excJson: any = {};
-          let seq: number = index + 1;
-          Object.keys(titleName).map((title) => {
-            let t = compute.data.fromJSON;
-            if (!t || t === undefined) return;
-            let e = titleName[title];
-            let v = item[e];
-            if (title === "序号") {
-              excJson[e] = seq;
-            } else {
-              excJson[e] = v;
-            }
+          selectedArray.map((sel: any) => {
+            if (item.name !== sel.name || item.num !== sel.num) return;
+            let excJson: any = {};
+            let seq: number = index + 1;
+            Object.keys(titleName).map((title) => {
+              let t = compute.data.fromJSON;
+              if (!t || t === undefined) return;
+              let e = titleName[title];
+              let v = item[e];
+              if (title === "序号") {
+                excJson[e] = seq;
+              } else {
+                excJson[e] = v;
+              }
+            });
+            // 第一段JSON文件
+            compute.data.json.push(excJson);
+            // 去重
+            let newArr = <any>[];
+            compute.data.json.forEach((i: any) => {
+              newArr.some((item: any) => item.seq == i.seq)
+                ? ""
+                : newArr.push(i);
+            });
+            compute.data.json = newArr;
           });
-          // 第一段JSON文件
-          compute.data.json.push(excJson);
         });
       },
 
-      // 清空JSON
+      // 重新设置序号
+      setNewSeq() {
+        compute.data.transJSON.map((item: any, num: number) => {
+          item.map((i: any, index: number) => {
+            if (index === 0 && typeof i === "number") {
+              item[0] = num - 1;
+            } else {
+              return;
+            }
+          });
+        });
+      },
+
+      // 清空JSON---第一步
       resetJSON() {
         compute.data.transJSON = [];
         compute.data.json = [];
@@ -244,7 +265,7 @@ const compute = reactive({
         compute.data.transJSON.push(compute.data.excelList);
       },
 
-      // 颠倒map
+      // 颠倒map---工具
       reverseMap: (map: any) => {
         let newMap = Object.keys(map).reduce((acc: any, key: any) => {
           acc[map[key]] = key;
@@ -256,6 +277,15 @@ const compute = reactive({
   },
 });
 compute.init();
+
+// 表格功能
+const excelFn = {
+  methods: {
+    showForm: (isShow: boolean) => {
+      compute.data.isShowForm = isShow;
+    },
+  },
+};
 </script>
 
 <template>
@@ -263,7 +293,7 @@ compute.init();
     <div class="pop">
       <div class="pop-content">
         <div class="content">
-          <div class="form">
+          <div class="form" v-show="compute.data.isShowForm">
             <div class="form-title">
               <p>光伏能源设备配置单</p>
             </div>
@@ -272,19 +302,8 @@ compute.init();
               <div class="exc-info">
                 <!-- 表格信息 -->
                 <div class="info-electric">
-                  <div
-                    :style="compute.data.success ? 'color:white' : 'color:red'"
-                  >
-                    <div class="err" v-show="!compute.data.success">
-                      {{
-                        `${
-                          compute.data.msg === undefined
-                            ? ""
-                            : `输入错误,请重新输入正确数值:${compute.data.msg}`
-                        }`
-                      }}
-                    </div>
-                    <div class="succ" v-show="compute.data.success">
+                  <div>
+                    <div class="succ">
                       <p>
                         经济型实际发电量:{{
                           compute.data.msg?.economic_capacity
@@ -301,13 +320,25 @@ compute.init();
                   class="exc-explain-input"
                   resize="none"
                   v-model="compute.data.excExplain"
-                  :autosize="{ minRows: 2, maxRows: 4 }"
+                  :autosize="{ minRows: 2, maxRows: 8 }"
                   type="textarea"
                   placeholder="Please input"
                 />
 
                 <div class="info-explain"></div>
               </div>
+            </div>
+          </div>
+          <div class="sel-plan" v-show="!compute.data.isShowForm">
+            <div
+              v-for="(i, index) in new Array(2)"
+              @click="
+                () => {
+                  excelFn.methods.showForm(true);
+                }
+              "
+            >
+              {{ index }}
             </div>
           </div>
         </div>
@@ -418,7 +449,14 @@ compute.init();
             <div class="footer">
               <div></div>
               <div class="footer-fn">
-                <el-button @click="() => {}">取消</el-button>
+                <el-button
+                  @click="
+                    () => {
+                      excelFn.methods.showForm(false);
+                    }
+                  "
+                  >取消</el-button
+                >
                 <el-button
                   type="primary"
                   @click="
@@ -435,7 +473,7 @@ compute.init();
                       compute.coms.sub.methods.subInfo();
                     }
                   "
-                  >方案生产</el-button
+                  >方案生成</el-button
                 >
               </div>
             </div>

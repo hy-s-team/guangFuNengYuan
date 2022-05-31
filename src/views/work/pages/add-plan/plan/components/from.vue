@@ -3,6 +3,8 @@
 import { lv } from "element-plus/lib/locale";
 import { reactive, ref, defineProps, defineComponent } from "vue";
 import { getAllNBQ } from "../../../../../../assets/api/plan/plan";
+import bus from "./../../../../../../utils/eventbus/eventsbus";
+
 const xTable = ref();
 const excel = reactive({
   init: () => {
@@ -21,7 +23,6 @@ const excel = reactive({
       单价: "price",
       总价: "total",
       备注: "remarks",
-      总金额: "all-total",
     },
     // 数据
     dataList: [
@@ -31,7 +32,6 @@ const excel = reactive({
         price: 0,
         total: 0,
         remarks: "",
-        "all-total": 0,
       },
       {
         name: "EMS",
@@ -39,7 +39,6 @@ const excel = reactive({
         price: 0,
         total: 0,
         remarks: "",
-        "all-total": 0,
       },
       // 集装箱
       {
@@ -48,7 +47,6 @@ const excel = reactive({
         price: 0,
         total: 0,
         remarks: "",
-        "all-total": 0,
       },
       {
         name: "空调系统",
@@ -56,7 +54,6 @@ const excel = reactive({
         price: 85,
         total: 0,
         remarks: "",
-        "all-total": 0,
       },
       {
         name: "消防系统",
@@ -64,7 +61,6 @@ const excel = reactive({
         price: 0,
         total: 0,
         remarks: "",
-        "all-total": 0,
       },
 
       {
@@ -73,10 +69,25 @@ const excel = reactive({
         price: 15,
         total: 0,
         remarks: "",
-        "all-total": 0,
+      },
+
+      {
+        name: "运输费用",
+        num: 0,
+        price: 0,
+        total: 0,
+        remarks: "",
+      },
+      {
+        name: "测试及运输费用",
+        num: 0,
+        price: 0,
+        total: 0,
+        remarks: "",
       },
     ],
 
+    selectDataListIndex: 0,
     // 合计表
     dataFooter: {
       num: 0,
@@ -84,10 +95,22 @@ const excel = reactive({
       total: 0,
     },
 
+    addEmptyData: {
+      timer: new Date(),
+      name: "",
+      num: 10,
+      price: 10,
+      total: "",
+      remarks: "",
+    } as any,
+
     // 所有机器的信息
     allmachineInfo: <any>[],
 
-    // 集装箱
+    // 是否显示表格
+    isShowExc: false,
+
+    isCheckLinkAge: false,
 
     // 选中的集合
     selectedArray: <any | null>[],
@@ -95,8 +118,31 @@ const excel = reactive({
     // 合计数据
     totalArray: <string | any>["合计", null, null, null, null, 0],
   },
-
   methods: {
+    // 计算单价
+    priceChange(...p: any[]) {
+      console.log(p, "a---");
+      const [tableMap, other] = p;
+      const { value } = other;
+      const { rowIndex } = tableMap;
+      const map = excel.data.dataList[rowIndex];
+      map.price = Number(value);
+      excel.methods.updateFooterEvent();
+      excel.methods.allTotal();
+    },
+
+    // 计算数量
+    numChange(...n: any[]) {
+      console.log(n, "n");
+      const [tableMap, other] = n;
+      const { value } = other;
+      const { rowIndex } = tableMap;
+      const map = excel.data.dataList[rowIndex];
+      map.num = Number(value);
+      excel.methods.updataNumber();
+      excel.methods.allTotal();
+    },
+
     // 获取所有的机器信号
     getAll: async () => {
       let res: any = await getAllNBQ();
@@ -104,7 +150,7 @@ const excel = reactive({
       let datas = res?.data;
       datas.map((data: any) => {
         excel.data.allmachineInfo.push(data);
-        console.log(excel.data.allmachineInfo, "excel.allmachineInfo");
+        // console.log(excel.data.allmachineInfo, "excel.allmachineInfo");
       });
     },
 
@@ -122,7 +168,6 @@ const excel = reactive({
 
     // 销量合计
     countAmount: (row: any) => {
-      excel.data.selectedArray.map((i: object) => {});
       let total = Number(row.num) * Number(row.price);
       return total;
     },
@@ -130,7 +175,6 @@ const excel = reactive({
     // 更新数量
     updataNumber: () => {
       const $table = xTable?.value;
-      console.log(xTable, "xTable");
       if (!$table) return;
       $table.updateFooter();
     },
@@ -145,13 +189,21 @@ const excel = reactive({
     // 数量和  必须是选中的行列
     sumNum(list: any, field: string) {
       let count = 0;
-      list.map((item: any) => {
-        excel.data.selectedArray.map((i: any) => {
-          if (i.name === item.name) {
+
+      console.log(
+        xTable.value.getCheckboxRecords(),
+        "xTable.value.getCheckboxRecords()"
+      );
+
+      excel.data.dataList.map((item: any) => {
+        xTable.value.getCheckboxRecords().map((i: any) => {
+          if (item.name === i.name) {
+            console.log(item, "item*----");
             count += Number(item[field]);
           }
         });
       });
+      console.log(count, "count---");
       return count;
     },
 
@@ -164,6 +216,7 @@ const excel = reactive({
         excel.data.dataList[index]["total"] = n * p;
       });
 
+      // 选中总数
       let allTotal = excel.methods.sumNum(excel.data.dataList, "total");
 
       // 全部的价格总和
@@ -191,64 +244,106 @@ const excel = reactive({
       return [excel.data.totalArray];
     },
 
-    // 切换选中的行列
+    // 切换选中的行列  --- 全选的
     checkboxChangeEvent({ checked, records, reserves }: any) {
       // console.log(checked ? "勾选事件" : "取消事件");
-      // console.log("当前选中的数据：" + selectName);
+      // console.log("当前选中的数据：" + records);
       // console.log("翻页时其他页的数据：" + reserves);
       const selectName = JSON.stringify(records);
+      // 得到一开始所有的数据
       excel.data.selectedArray = JSON.parse(selectName);
 
-      // 选中
-      if (checked) {
-        excel.methods.computeAgain();
-      } else {
-        // 取消
-        excel.methods.computeAgain();
-      }
+      // 计算数据
+      excel.methods.computeAgain();
+    },
+
+    // 单选中一项的问题
+    checkboxChange(...c: any) {
+      const checkInfo = { ...c };
+      const { row, rowIndex } = Object.values(checkInfo)[0] as any;
+      const { name, price, num, total } = row;
+
+      console.log(Object.values(checkInfo)[0], "Object.values(checkInfo)[0]");
+
+      const map = excel.data.dataList[rowIndex];
+      map.num = num;
+      map.price = price;
+
+      // 联动
+      excel.methods.linkage(!excel.data.isCheckLinkAge, name);
+      excel.data.isCheckLinkAge = !excel.data.isCheckLinkAge;
+
+      excel.methods.computeAgain();
     },
 
     // 默认选中出基础的5项以外的数据
     selectDefaultMode() {
+      console.log(excel.data.dataList, "excel.data.dataList");
+      let arr = <any>[];
       excel.data.dataList.map((i: any, index: number) => {
         if (index >= 5) {
           // 存放信息
           excel.data?.selectedArray.push(i);
-          xTable?.value.toggleCheckboxRow(excel.data.dataList[index]);
+          arr.push(excel.data.dataList[index]);
         }
       });
+      xTable?.value.setCheckboxRow([...arr], true);
+      console.log("执行", "");
     },
 
-    // 合计计算
-    // footerMethod({ columns, data }: any) {
-    //   return [
-    //     columns.map((column: any, columnIndex: any) => {
-    //       let title: string = column?.title;
-    //       switch (title) {
-    //         case "序号":
-    //           return "合计";
-    //           break;
-    //         case "数量":
-    //           // excel.dataFooter.num = excel.sumNum(excel.dataList, "num");
-    //           // return excel.dataFooter.num;
-    //           break;
-    //         case "单价":
-    //           // excel.dataFooter.price = excel.sumNum(excel.dataList, "price");
-    //           // return excel.dataFooter.price;
-    //           break;
-    //         case "总价":
-    //           excel.data.dataFooter.total = excel.methods.sumNum(
-    //             excel.data.dataList,
-    //             "total"
-    //           );
-    //           return excel.data.dataFooter.total;
-    //           break;
-    //         default:
-    //           break;
-    //       }
-    //     }),
-    //   ];
-    // },
+    // 选择联动
+    linkage(isSelected: boolean, name: string) {
+      if (
+        name === "10尺集装箱" ||
+        name === "20尺集装箱" ||
+        name === "40尺集装箱" ||
+        name === "空调系统" ||
+        name === "消防系统"
+      ) {
+        xTable?.value.setCheckboxRow(
+          [
+            excel.data.dataList[2],
+            excel.data.dataList[3],
+            excel.data.dataList[4],
+          ],
+          isSelected
+        );
+      }
+
+      // 赋予最新的数组
+      excel.data.selectedArray = xTable.value.getCheckboxRecords();
+    },
+
+    // 新增
+    insertEvent() {
+      const map = reactive({ ...excel.data.addEmptyData });
+      // 插入最后一行数据
+      xTable.value.insertAt(map, -1);
+
+      // 添加到数组中
+      excel.data.dataList.push(map);
+
+      // 获取新增的临时数据
+      const insertRecords = excel.data.dataList.filter(
+        (row: any) => row._isNew
+      )[0];
+
+      excel.methods.selectDefaultMode();
+    },
+
+    // 删除
+    removeEvent() {},
+
+    // 保存
+    saveEvent() {},
+
+    // 更新数据
+    updateData() {
+      excel.data.dataList.push(excel.data.addEmptyData);
+    },
+
+    // 更新数据
+    loadData() {},
   },
 });
 
@@ -268,6 +363,13 @@ defineExpose({
 
 <template>
   <div class="exc">
+    <vxe-toolbar export>
+      <template #buttons>
+        <vxe-button @click="excel.methods.insertEvent">新增</vxe-button>
+        <vxe-button @click="excel.methods.removeEvent">删除</vxe-button>
+        <vxe-button @click="excel.methods.saveEvent">保存</vxe-button>
+      </template>
+    </vxe-toolbar>
     <vxe-table
       border
       align="center"
@@ -287,7 +389,7 @@ defineExpose({
         },
         highlight: true,
       }"
-      @checkbox-change="excel.methods.checkboxChangeEvent"
+      @checkbox-change="excel.methods.checkboxChange"
       @checkbox-all="excel.methods.checkboxChangeEvent"
     >
       <!-- 多选框 -->
@@ -311,7 +413,8 @@ defineExpose({
             </vxe-select>
           </template>
           <template v-else>
-            <p>{{ row.name }}</p>
+            <!-- <p>{{ row.name }}</p> -->
+            <vxe-input v-model="row.name"></vxe-input>
           </template>
         </template>
       </vxe-column>
@@ -326,10 +429,7 @@ defineExpose({
           immediate: true,
           props: { type: 'number' },
           events: {
-            change: () => {
-              excel.methods.updataNumber();
-              excel.methods.allTotal();
-            },
+            change: excel.methods.numChange,
           },
         }"
       ></vxe-table-column>
@@ -343,10 +443,7 @@ defineExpose({
           immediate: true,
           props: { type: 'number' },
           events: {
-            change: () => {
-              excel.methods.updateFooterEvent();
-              excel.methods.allTotal();
-            },
+            change: excel.methods.priceChange,
           },
         }"
         width="150"
