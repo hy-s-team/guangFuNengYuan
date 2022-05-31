@@ -28,24 +28,24 @@ const excel = reactive({
     dataList: [
       {
         name: "BMS",
-        num: 0,
-        price: 0,
-        total: 0,
+        num: null,
+        price: null,
+        total: null,
         remarks: "",
       },
       {
         name: "EMS",
-        num: 0,
-        price: 0,
-        total: 0,
+        num: null,
+        price: null,
+        total: null,
         remarks: "",
       },
       // 集装箱
       {
         name: "10尺集装箱",
-        num: 0,
-        price: 0,
-        total: 0,
+        num: null,
+        price: null,
+        total: null,
         remarks: "",
       },
       {
@@ -57,9 +57,9 @@ const excel = reactive({
       },
       {
         name: "消防系统",
-        num: 0,
-        price: 0,
-        total: 0,
+        num: null,
+        price: null,
+        total: null,
         remarks: "",
       },
 
@@ -73,16 +73,16 @@ const excel = reactive({
 
       {
         name: "运输费用",
-        num: 0,
-        price: 0,
-        total: 0,
+        num: null,
+        price: null,
+        total: null,
         remarks: "",
       },
       {
         name: "测试及运输费用",
-        num: 0,
-        price: 0,
-        total: 0,
+        num: null,
+        price: null,
+        total: null,
         remarks: "",
       },
     ],
@@ -96,12 +96,12 @@ const excel = reactive({
     },
 
     addEmptyData: {
-      timer: new Date(),
+      timer: new Date().getTime(),
       isOther: true,
-      name: "",
-      num: 10,
-      price: 10,
-      total: "",
+      name: null,
+      num: null,
+      price: null,
+      total: null,
       remarks: "",
     } as any,
 
@@ -191,20 +191,7 @@ const excel = reactive({
     sumNum(list: any, field: string) {
       let count = 0;
       let otherCount = 0;
-      // excel.data.dataList.map((item: any) => {
-      //   xTable.value.getCheckboxRecords().map((i: any) => {
-      //     if (!i.isOther) {
-      //       if (item.name === i.name) {
-      //         count += Number(item[field]);
-      //       }
-      //     } else {
-      //       i.total = i.num * i.price;
-      //       count += Number(i[field]);
-      //       console.log(i, "i");
-      //     }
-      //   });
-      // });
-
+      // 分开进行计算
       xTable.value.getCheckboxRecords().map((i: any) => {
         if (!i.isOther) {
           if (i.name === i.name) {
@@ -216,7 +203,6 @@ const excel = reactive({
         }
       });
 
-      console.log(count, otherCount, "count---");
       return count + otherCount;
     },
 
@@ -259,6 +245,8 @@ const excel = reactive({
 
     // 切换选中的行列  --- 全选的
     checkboxChangeEvent({ checked, records, reserves }: any) {
+      console.log("进行了多选");
+
       // console.log(checked ? "勾选事件" : "取消事件");
       // console.log("当前选中的数据：" + records);
       // console.log("翻页时其他页的数据：" + reserves);
@@ -266,8 +254,23 @@ const excel = reactive({
       // 得到一开始所有的数据
       excel.data.selectedArray = JSON.parse(selectName);
 
-      // 计算数据
+      // 计算 数据总价
       excel.methods.computeAgain();
+
+      // 刷新还是选中必选项
+      excel.methods.selectDefaultMode();
+
+      let a1 = false;
+      let a2 = false;
+      xTable.value.getCheckboxRecords().map((i: any) => {
+        if (i.name === "空调系统") a1 = true;
+        else a2 = true;
+      });
+
+      if (a1 && a2) excel.data.isCheckLinkAge = true;
+      else excel.data.isCheckLinkAge = false;
+      a1 = false;
+      a2 = false;
     },
 
     // 单选中一项的问题
@@ -303,7 +306,6 @@ const excel = reactive({
         }
       });
       xTable?.value.setCheckboxRow([...arr], true);
-      console.log("执行", "");
     },
 
     // 选择联动
@@ -346,8 +348,10 @@ const excel = reactive({
       excel.methods.selectDefaultMode();
     },
 
-    // 删除
-    removeEvent() {},
+    // 删除---选中的
+    removeEvent() {
+      xTable.value.removeCheckboxRow();
+    },
 
     // 保存
     saveEvent() {},

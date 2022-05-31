@@ -1,343 +1,127 @@
 @import "./../../../p.less";
 
-.add-plan {
+.plan-info {
   .full;
   .flex-center;
+  max-width: 1776px;
   font-size: 12px;
   background-color: #fff;
-
-  .pop {
-    .full;
-    display: flex;
-    flex-direction: column;
+  display: flex;
+  flex-direction: column;
 
 
-    .pop-content {
-      flex: 8;
-      display: flex;
+  .info-title {
+    .w;
+    height: 60px;
+    justify-content: space-between;
+    .flex-column-center;
+
+    >.right {
+      min-width: 386px;
       justify-content: space-between;
-      justify-content: right;
+      .flex-column-center;
 
-      .content {
-        .h;
-        width: 70%;
-        display: flex;
-        flex-direction: column;
+      >div {
         .flex-center;
-
-        .form {
-          width: 80%;
-          height: 80%;
-          display: flex;
-          flex-direction: column;
-           overflow-y: auto;
-
-
-          .form-title {
-            .w;
-            .flex-center;
-            height: 10%;
-            background-color: rgb(242, 243, 245);
-            display: none;
-            >p {
-              font-size: 24px;
-              letter-spacing: 3px;
-              font-weight: 700;
-            }
-          }
-
-          .form-content {
-            height: auto;
-            .w;
-
-            .exc-info {
-              .w;
-              height: auto;
-
-
-              .info-electric {
-                .w;
-                height: 40px;
-                border-left: 1px solid rgb(232, 234, 236);
-                border-right: 2px solid rgb(232, 234, 236);
-                font-weight: 700;
-                .flex-column-center;
-
-                .succ {
-                  .w;
-
-                  >p {
-                    white-space: nowrap;
-                    text-overflow: ellipsis;
-                    overflow: hidden;
-                    display: inline-block
-                  }
-                }
-
-                >div {
-                  .w;
-                  >div {
-                    margin-left: 10px;
-                  }
-                }
-              }
-            }
-          }
-
-
-
-        }
-
-        .sel-plan{
-          .full;
-          .flex-center;
-          >div{
-            width: 100px;
-            height: 100px;
-            margin-left: 50px;
-            background-color: #777;
-          .flex-center;
-          }
-        }
-
-        .succ {
-          color: black;
-          font-size: 15px;
-        }
-      }
-
-      .menu {
-        .h;
-        min-width: 346px;
-        max-width: 346px;
-        width: 18%;
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
-        box-shadow: rgba(0, 0, 0, 0.09) 0px 3px 12px;
-
-
-        .menu-up {
-          height: auto;
-          flex-direction: column;
-          justify-content: flex-start;
-          .flex-center;
-
-          >.title {
-            .w;
-            height: 48px;
-            display: flex;
-            justify-content: space-between;
-            .flex-column-center;
-            border-bottom: 1px solid #E5E6EB;
-
-            >div {
-              font-size: 13px;
-              margin-left: 12px;
-              font-weight: 700;
-            }
-
-            >i {
-              width: 16px;
-              height: 16px;
-              font-size: 16px;
-              margin-right: 12px;
-              .iconfont;
-
-              &:hover {
-                border-radius: 4px;
-              }
-            }
-          }
-
-          // 基本属性
-          .attr {
-            .w;
-            flex-direction: column;
-            margin-top: 24px;
-            min-width: 320px;
-            max-width: 320px;
-            .flex-center;
-            border-bottom: 1px solid #E5E6EB;
-
-            .attr-title {
-              .menu-first-title;
-            }
-
-            .attr-info {
-              .menu-first-div-info;
-
-
-
-              >.name>.input {
-                max-width: 220px;
-              }
-
-              .effect {
-                .radio {
-                  margin-left: 0px;
-                  width: 75%;
-                }
-              }
-
-              .load>div {
-                min-width: 75%;
-                color: #87919d;
-              }
-            }
-
-
-          }
-
-          // 逆变器
-          .nbq {
-            .w;
-            min-width: 320px;
-            max-width: 320px;
-            margin-top: 24px;
-            flex-direction: column;
-            .flex-center;
-            border-bottom: 1px solid #E5E6EB;
-
-            .nbq-title {
-              .menu-first-title;
-            }
-
-            .nbq-info {
-              .menu-first-div-info;
-
-
-              .kw>.el-select {
-                min-width: 220px;
-              }
-
-              .type>.radio {
-                min-width: 75%;
-              }
-
-              .num>div {
-                max-width: 100px;
-                margin-right: 110px;
-              }
-            }
-
-          }
-
-          // 电量
-          .electric {
-            .w;
-            .flex-center;
-            min-height: 88px;
-            min-width: 320px;
-            max-width: 320px;
-            margin-top: 24px;
-            flex-direction: column;
-
-            .electric-title {
-              .menu-first-title;
-            }
-
-            .electric-info {
-              .flex-center;
-              margin-top: 16px;
-
-              .needs {
-                min-width: 298px;
-                max-width: 298px;
-                justify-content: space-between;
-                .flex-column-center;
-
-                >p {
-                  min-width: 70px;
-                  color: #4E5969;
-                }
-              }
-            }
-          }
-        }
-
-        .menu-lower {
-          height: 64px;
-          justify-content: right;
-          .flex-column-center;
-          border-top: 1px solid #E5E6EB;
-
-          >.footer {
-            min-height: 25%;
-            display: flex;
-            .flex-column-center;
-            margin-right: 16px;
-
-            .el-button {
-              margin-right: 8px;
-            }
-          }
-        }
-
-        // 一级标签通用
-        .menu-first-title {
-          .full;
-          min-height: 24px;
-          max-height: 24px;
-          font-weight: 700;
-          .flex-column-center;
-
-          >div {
-            font-weight: 600;
-            font-size: 13px;
-            padding-left: 5px;
-            border-left: 3px solid rgb(5, 100, 224);
-          }
-        }
-
-        // 一级标签的盒子居中
-        .menu-first-div-info {
-          .flex-center;
-          margin: 8px 0px 8px 0px;
-          justify-content: space-between;
-          min-width: 298px;
-          max-width: 298px;
-          height: auto;
-          flex-direction: column;
-          max-height: 126px;
-
-          >div {
-            .w;
-            margin: 8px 0px 8px 0px;
-            min-height: 24px;
-            .flex-column-center;
-
-            >p {
-              color: rgb(135, 145, 157);
-              .flex-column-center;
-              min-width: 80px;
-              min-width: 25%;
-              font-size: 12px;
-            }
-
-          }
-        }
-
-      }
-
-      .menu>:last-child {
-        border-bottom: none;
-      }
-
-
-    }
-
-    .pop-footer {
-      flex: 1;
-
-      .footer {
-        .full;
-        display: flex;
-        .flex-column-center;
-        justify-content: space-between;
-        display: none;
+        width: 80px;
+        height: 32px;
+        color: white;
+        background: #165DFF;
+        border-radius: 4px;
       }
     }
   }
+
+  .content {
+    .h;
+    width: 70%;
+    display: flex;
+    flex-direction: column;
+    .flex-center;
+
+    .form {
+      width: 80%;
+      height: 80%;
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+
+
+      .form-title {
+        .w;
+        .flex-center;
+        height: 10%;
+        background-color: rgb(242, 243, 245);
+        display: none;
+
+        >p {
+          font-size: 24px;
+          letter-spacing: 3px;
+          font-weight: 700;
+        }
+      }
+
+      .form-content {
+        height: auto;
+        .w;
+
+        .exc-info {
+          .w;
+          height: auto;
+
+
+          .info-electric {
+            .w;
+            height: 40px;
+            border-left: 1px solid rgb(232, 234, 236);
+            border-right: 2px solid rgb(232, 234, 236);
+            font-weight: 700;
+            .flex-column-center;
+
+            .succ {
+              .w;
+
+              >p {
+                white-space: nowrap;
+                text-overflow: ellipsis;
+                overflow: hidden;
+                display: inline-block
+              }
+            }
+
+            >div {
+              .w;
+
+              >div {
+                margin-left: 10px;
+              }
+            }
+          }
+        }
+      }
+
+
+
+    }
+
+    .sel-plan {
+      .full;
+      .flex-center;
+
+      >div {
+        width: 100px;
+        height: 100px;
+        margin-left: 50px;
+        background-color: #777;
+        .flex-center;
+      }
+    }
+
+    .succ {
+      color: black;
+      font-size: 15px;
+    }
+  }
+
 
 }

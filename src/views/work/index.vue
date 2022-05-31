@@ -14,11 +14,7 @@ const router = useRouter();
 const route = useRoute();
 /* 事件注册 --- add-plan */
 bus.$on("add-plan", () => {
-  work.data.showPlan = true;
-});
-/* 退出新建方案 --- back-from-add-plan */
-bus.$on("back-from-add-plan", () => {
-  work.data.showPlan = false;
+  // work.data.showPlan = true;
 });
 
 // 工作方案台
@@ -111,9 +107,6 @@ const work = reactive({
       <div class="coms">
         <router-view />
       </div>
-    </div>
-    <div class="plan" v-show="work.data.showPlan">
-      <Plan></Plan>
     </div>
   </div>
 </template>

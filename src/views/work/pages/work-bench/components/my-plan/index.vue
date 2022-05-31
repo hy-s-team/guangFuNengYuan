@@ -4,6 +4,10 @@
 <script setup lang="ts">
 import { reactive, ref } from "vue";
 import bus from "./../../../../../../utils/eventbus/eventsbus";
+//@ts-ignore
+import Pop from "./../pop.vue";
+//@ts-ignore
+import Form from "./../../../add-plan/plan/index.vue";
 // @ts-ignore
 // 添加我的方案
 const myPlan = reactive({
@@ -12,8 +16,7 @@ const myPlan = reactive({
     init: () => {},
     // 新建方案
     addNewPlan: () => {
-      bus.$emit("add-plan");
-      console.log("新建方案", "---");
+      bus.$emit("showPlanMenu", true);
     },
   },
 });
@@ -57,5 +60,7 @@ myPlan.methods.init();
         {{ `方案:${index}` }}
       </div>
     </div>
+    <Pop></Pop>
+    <Form></Form>
   </div>
 </template>

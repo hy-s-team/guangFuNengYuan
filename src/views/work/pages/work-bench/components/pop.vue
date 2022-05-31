@@ -1,5 +1,5 @@
 <style scoped lang="less">
-@import "../../../../../assets/less/work/workbench/plan/plan.less";
+@import "../../../../../assets/less/work/workbench/pop.less";
 </style>
 
 <script setup lang="ts">
@@ -18,13 +18,20 @@ type excelMap = {
   价格: number;
   总价合计: string;
 }[];
-
-// 显示表格信息
-bus.$on("isShowForm", (isShow: boolean) => {
-  compute.data.isShowForm = isShow;
-});
-
+/*
+    电能计算 总对象
+      子组件属性
+        本组件
+*/
 const exc = ref();
+// 拿到父组件资源
+const props = defineProps(["work"]);
+
+// 显示添加方案的菜单
+bus.$on("showPlanMenu", (isShow: boolean, msg = "新建方案") => {
+  compute.data.isShowAddMeun = isShow;
+  if (msg) compute.data.popTitleName = msg;
+});
 
 const compute = reactive({
   init: () => {
@@ -66,6 +73,53 @@ const compute = reactive({
       compute.coms.machineModel.data.push(map);
     },
   },
+  // 内部组件
+  coms: {
+    // 电量 kwh
+    energy: {
+      value: <number | any>undefined,
+      methods: {},
+    },
+    // 逆变器
+    machineModel: {
+      value: "",
+      id: "",
+      data: [] as any,
+      methods: {
+        // 选择机器型号
+        select: (name: string) => {
+          compute.coms.machineModel.data.map((d: any) => {
+            if (!d[name]) return;
+            const id = d[name].inverter_id;
+            compute.coms.machineModel.id = id;
+            compute.coms.machineModel.value = name;
+          });
+        },
+      },
+    },
+    // 提交
+    sub: {
+      methods: {
+        // 提交发电需求以及信号信息
+        subInfo: async () => {
+          console.log("方案", "方案");
+          bus.$emit("isShowForm", true);
+          return;
+          let capacity = compute.coms.energy.value;
+          let inverter_id = Number(compute.coms.machineModel.id);
+          let res: any = await getCapacity(capacity, inverter_id);
+          const { msg, success, data } = res;
+          compute.data.success = success;
+          console.log(success, "success---是否成功~~~");
+          if (!data) {
+            compute.data.msg = msg;
+          } else {
+            compute.data.msg = data;
+          }
+        },
+      },
+    },
+  },
   // 数据
   data: {
     // 导出的表单数据
@@ -78,15 +132,32 @@ const compute = reactive({
     excelTitle: ["光伏能源设备配置单", "", "", "", "", ""],
     // 表格列表
     excelList: ["序号", "品名", "数量", "单价", "总价", "备注"],
-
+    // 提交后端反馈信息
+    msg: <undefined | string | any>undefined,
+    // 电量获得预期
+    batteryMsg: <any | undefined | string | object>undefined,
+    // 是否成功
+    success: false,
+    // 方案名称
+    planName: "",
+    // 逆变器用途
+    effect: "工商",
+    // 逆变器类型
+    nbqType: "光储一体机",
+    // 逆变器个数
+    nbqNumber: 0,
+    // 表格说明
     excExplain:
       "说明: 1.质保期:5年; 2税票及税率:此报价已包含13%增值税专用发票和运费; 3.生效日期:2022-3-5 4.付款方式:预付; 5.送货方式:送至需XXXXXXXXXXXX; 6.包装方式:原包装",
 
-    // 提交后端反馈信息
-    msg: <undefined | string | any>undefined,
+    // 是否显示表单等数据
+    isShowPopContent: false,
 
-    // 是否显示表单
-    isShowForm: false,
+    // 添加方案菜单 弹窗
+    isShowAddMeun: false,
+
+    //
+    popTitleName: "新建方案",
 
     methods: {
       // 导出表格
@@ -103,7 +174,7 @@ const compute = reactive({
         // return;
         // 导出excel
         const s = new ExcelService();
-        s.exportAsExcelFile(compute.data.transJSON, "");
+        s.exportAsExcelFile(compute.data.transJSON, compute.data.planName);
       },
 
       // 转换JSON
@@ -216,67 +287,130 @@ compute.init();
 </script>
 
 <template>
-  <div class="plan-info" v-show="compute.data.isShowForm">
-    <div class="info-title">
-      <div
-        @click="
-          () => {
-            compute.data.isShowForm = false;
-            bus.$emit('showPlanMenu', false);
-          }
-        "
-      >
-        返回
-      </div>
-      <div>项目名称xxxxxxx</div>
-      <div class="right">
-        <div>方案切换</div>
-        <div
-          @click="
-            () => {
-              bus.$emit('showPlanMenu', true, '修改方案');
-            }
-          "
-        >
-          修改方案
+  <div class="pop-menu" v-show="compute.data.isShowAddMeun">
+    <div class="menu">
+      <div class="menu-up">
+        <div class="title">
+          <div>{{ compute.data.popTitleName }}</div>
+          <i
+            class="iconfont icon-guanbi"
+            @click="
+              () => {
+                compute.data.isShowAddMeun = false;
+              }
+            "
+          ></i>
         </div>
-        <div>分享</div>
-      </div>
-    </div>
-    <div class="content">
-      <div class="form">
-        <div class="form-title">
-          <p>光伏能源设备配置单</p>
-        </div>
-        <div class="form-content">
-          <Exc ref="exc"></Exc>
-          <div class="exc-info">
-            <!-- 表格信息 -->
-            <div class="info-electric">
-              <div>
-                <div class="succ">
-                  <p>
-                    经济型实际发电量:{{
-                      compute.data.msg?.economic_capacity
-                        ? compute.data.msg?.economic_capacity
-                        : "无数据"
-                    }}
-                  </p>
-                </div>
-              </div>
+
+        <div class="attr">
+          <div class="attr-title">
+            <div>基本属性</div>
+          </div>
+          <div class="attr-info">
+            <!-- 方案名称 -->
+            <div class="name">
+              <p>方案名称:</p>
+              <el-input
+                class="input"
+                v-model="compute.data.planName"
+                placeholder="请输入"
+              />
             </div>
+            <!-- 用途 -->
+            <div class="effect">
+              <p>用途:</p>
+              <el-radio-group v-model="compute.data.effect" class="radio">
+                <el-radio label="户用" size="small">户用</el-radio>
+                <el-radio label="工商" size="small">工商</el-radio>
+              </el-radio-group>
+            </div>
+            <!-- 负载 -->
+            <div class="load">
+              <p>负载:</p>
+              <div>三项负载</div>
+            </div>
+          </div>
+        </div>
 
-            <!-- 表格说明 -->
-            <el-input
-              class="exc-explain-input"
-              resize="none"
-              v-model="compute.data.excExplain"
-              :autosize="{ minRows: 2, maxRows: 8 }"
-              type="textarea"
-              placeholder="Please input"
-            />
+        <!-- 逆变器 -->
+        <div class="nbq">
+          <div class="nbq-title">
+            <div>逆变器</div>
+          </div>
 
-            <div class="info-explain"></div>
+          <div class="nbq-info">
+            <div class="type">
+              <p>类型:</p>
+              <el-radio-group v-model="compute.data.nbqType" class="radio">
+                <el-radio label="储能逆变器" size="small">储能逆变器</el-radio>
+                <el-radio label="光储一体机" size="small">光储一体机</el-radio>
+              </el-radio-group>
+            </div>
+            <div class="kw">
+              <p>功率(KW):</p>
+              <el-tree-select
+                placeholder="请选择"
+                v-model="compute.coms.machineModel.value"
+                :data="compute.coms.machineModel.data"
+                check-strictly
+                @change="
+              (id:string) => {
+                compute.coms.machineModel.methods.select(id);
+              }
+            "
+              />
+            </div>
+            <div class="num">
+              <p>数量(个)</p>
+              <el-input v-model="compute.data.nbqNumber" placeholder="" />
+            </div>
+          </div>
+        </div>
+
+        <!-- 电量 -->
+        <div class="electric">
+          <div class="electric-title">
+            <div>电量</div>
+          </div>
+          <div class="electric-info">
+            <div class="needs">
+              <p>需求电量:</p>
+              <el-input
+                v-model="compute.coms.energy.value"
+                placeholder="请输入发电量"
+              >
+                <template #append>KWH</template>
+              </el-input>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="menu-lower">
+        <div class="footer">
+          <div></div>
+          <div class="footer-fn">
+            <el-button @click="() => {}">取消</el-button>
+            <el-button
+              type="primary"
+              @click="
+                () => {
+                  compute.data.methods.exportExcel();
+                }
+              "
+              >导出表格</el-button
+            >
+            <el-button
+              type="primary"
+              @click="
+                () => {
+                  compute.coms.sub.methods.subInfo();
+                  // 进入即可消失掉
+                  compute.data.isShowAddMeun = false;
+                }
+              "
+              >方案生成</el-button
+            >
           </div>
         </div>
       </div>
