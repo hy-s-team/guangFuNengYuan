@@ -20,7 +20,7 @@ type excelMap = {
 }[];
 
 // 显示表格信息
-bus.$on("isShowForm", (info: any) => {
+bus.$on("isShowForm-fn", (info: any) => {
   const { isShow, data, nbqName, machineModel } = info;
   compute.data.isShowForm = isShow;
   compute.data.planData = data;
@@ -46,7 +46,7 @@ const compute = reactive({
       if (!res) return;
       let datas = res?.data;
       datas.map((data: any) => {
-        compute.methods.addMachineModel(data);
+        // compute.methods.addMachineModel(data);
       });
       console.log(datas, "datas所有逆变器");
     },

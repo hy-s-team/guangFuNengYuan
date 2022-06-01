@@ -111,19 +111,67 @@ const compute = reactive({
           let capacity = compute.coms.energy.value;
           let inverter_id = Number(compute.coms.machineModel.id);
           let inverter_num = Number(compute.data.nbqNumber);
-          let res: any = await getCapacity(capacity, inverter_id, inverter_num);
-          const { msg, success, data } = res;
-          compute.data.success = success;
-          console.log(success, "success---是否成功~~~");
-          if (!data) {
-            compute.data.msg = msg;
-          } else {
-            compute.data.msg = data;
+          // let res: any = await getCapacity(capacity, inverter_id, inverter_num);
+          // const { msg, success, data } = res;
+          // compute.data.success = success;
+          // console.log(success, "success---是否成功~~~");
+          // if (!data) {
+          //   compute.data.msg = msg;
+          // } else {
+          //   compute.data.msg = data;
+          // }
+
+          if (inverter_num === 1) {
+            bus.$emit("isShowForm-fn", {
+              isShow: true,
+              data: {
+                economic: {
+                  battery_number: 10,
+                  bracket_number: null,
+                  capacity: 0,
+                  errmsg: "",
+                },
+                inverter_number: 100,
+                inverter_output_power: 20,
+                practical: {
+                  battery_number: 11,
+                  bracket_number: 2,
+                  capacity: 0,
+                  errmsg: null,
+                },
+              },
+              nbqName: "gta",
+              number: Number(compute.data.nbqNumber),
+            }) && ElMessage("输入正确正在加载表格数据!");
+          } else if (inverter_num === 2) {
+            bus.$emit("isShowForm-fn", {
+              isShow: true,
+              data: {
+                economic: {
+                  battery_number: 10,
+                  bracket_number: null,
+                  capacity: 0,
+                  errmsg: "",
+                },
+                隔离变压器: 1,
+                inverter_number: 200,
+                inverter_output_power: 20,
+                practical: {
+                  battery_number: 11,
+                  bracket_number: 5,
+                  capacity: 0,
+                  errmsg: null,
+                },
+              },
+              nbqName: "gta",
+              number: Number(compute.data.nbqNumber),
+            }) && ElMessage("输入正确正在加载表格数据!");
           }
 
+          return;
           // 弹窗是否成功!
           if (success)
-            bus.$emit("isShowForm", {
+            bus.$emit("isShowForm-fn", {
               isShow: true,
               data: data,
               nbqName: compute.coms.machineModel.value,
