@@ -20,8 +20,16 @@ type excelMap = {
 }[];
 
 // 显示表格信息
-bus.$on("isShowForm", (isShow: boolean) => {
+bus.$on("isShowForm", (info: any) => {
+  const { isShow, data, nbqName, machineModel } = info;
   compute.data.isShowForm = isShow;
+  compute.data.planData = data;
+  compute.data.getInfo = info;
+  bus.$emit("toForm", info);
+});
+
+bus.$on("change-Plan-Electric", (isEconomic: boolean) => {
+  compute.data.isEconomic = isEconomic;
 });
 
 const exc = ref();
@@ -29,7 +37,7 @@ const exc = ref();
 const compute = reactive({
   init: () => {
     // 获取所有的逆变器
-    compute.methods.getAllNBQ();
+    // compute.methods.getAllNBQ();
   },
   methods: {
     /** 获取所有的设备 */
@@ -68,6 +76,7 @@ const compute = reactive({
   },
   // 数据
   data: {
+    isEconomic: true,
     // 导出的表单数据
     json: [] as excelMap,
     // 刚加载JSON
@@ -78,7 +87,7 @@ const compute = reactive({
     excelTitle: ["光伏能源设备配置单", "", "", "", "", ""],
     // 表格列表
     excelList: ["序号", "品名", "数量", "单价", "总价", "备注"],
-
+    // 表格说明
     excExplain:
       "说明: 1.质保期:5年; 2税票及税率:此报价已包含13%增值税专用发票和运费; 3.生效日期:2022-3-5 4.付款方式:预付; 5.送货方式:送至需XXXXXXXXXXXX; 6.包装方式:原包装",
 
@@ -87,6 +96,27 @@ const compute = reactive({
 
     // 是否显示表单
     isShowForm: false,
+
+    // 后台返回的方案信息
+    planData: {
+      economic: {
+        battery_number: 0,
+        bracket_number: null,
+        capacity: 0,
+        errmsg: "",
+      },
+      inverter_number: 0,
+      inverter_output_power: 0,
+      practical: {
+        battery_number: 0,
+        bracket_number: 0,
+        capacity: 0,
+        errmsg: null,
+      },
+    },
+
+    // 获取的信息
+    getInfo: {} as any,
 
     methods: {
       // 导出表格
@@ -230,7 +260,15 @@ compute.init();
       </div>
       <div>项目名称xxxxxxx</div>
       <div class="right">
-        <div>方案切换</div>
+        <div
+          @click="
+            () => {
+              bus.$emit('change-Plan');
+            }
+          "
+        >
+          方案切换
+        </div>
         <div
           @click="
             () => {
@@ -249,17 +287,54 @@ compute.init();
           <p>光伏能源设备配置单</p>
         </div>
         <div class="form-content">
-          <Exc ref="exc"></Exc>
+          <Exc ref="exc" :info="compute"></Exc>
           <div class="exc-info">
             <!-- 表格信息 -->
             <div class="info-electric">
               <div>
                 <div class="succ">
                   <p>
-                    经济型实际发电量:{{
-                      compute.data.msg?.economic_capacity
-                        ? compute.data.msg?.economic_capacity
-                        : "无数据"
+                    {{
+                      `${
+                        compute.data.isEconomic ? "经济" : "实用"
+                      }型实际发电量:${
+                        compute.data.planData
+                          ? `${
+                              compute.data.planData?.inverter_output_power
+                                ? compute.data.planData?.inverter_output_power
+                                : "无法计算"
+                            }KW/${
+                              compute.data.isEconomic
+                                ? compute.data.planData?.economic.capacity?.toFixed(
+                                    2
+                                  )
+                                  ? compute.data.planData?.economic.capacity?.toFixed(
+                                      2
+                                    )
+                                  : "无法计算"
+                                : compute.data.planData?.practical.capacity?.toFixed(
+                                    2
+                                  )
+                                ? compute.data.planData?.practical.capacity?.toFixed(
+                                    2
+                                  )
+                                : "无法计算"
+                            }KWH`
+                          : `无数据`
+                      }`
+                    }}
+                  </p>
+                  <p>
+                    {{
+                      `提示信息:${
+                        compute.data.isEconomic
+                          ? compute.data.planData?.economic.errmsg
+                            ? compute.data.planData?.economic.errmsg
+                            : ""
+                          : compute.data.planData?.practical.errmsg
+                          ? compute.data.planData?.practical.errmsg
+                          : ""
+                      }`
                     }}
                   </p>
                 </div>

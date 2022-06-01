@@ -1,127 +1,125 @@
 @import "./../../../p.less";
 
-.plan-info {
-  .full;
-  .flex-center;
-  max-width: 1776px;
-  font-size: 12px;
-  background-color: #fff;
-  display: flex;
-  flex-direction: column;
-
-
-  .info-title {
-    .w;
-    height: 60px;
-    justify-content: space-between;
-    .flex-column-center;
-
-    >.right {
-      min-width: 386px;
+  .plan-info {
+    .flex-center;
+    width: auto;
+    font-size: 12px;
+    background-color: #fff;
+    flex-direction: column;
+  
+    .info-title {
+      .w;
+      height: 60px;
       justify-content: space-between;
       .flex-column-center;
-
-      >div {
-        .flex-center;
-        width: 80px;
-        height: 32px;
-        color: white;
-        background: #165DFF;
-        border-radius: 4px;
-      }
-    }
-  }
-
-  .content {
-    .h;
-    width: 70%;
-    display: flex;
-    flex-direction: column;
-    .flex-center;
-
-    .form {
-      width: 80%;
-      height: 80%;
-      display: flex;
-      flex-direction: column;
-      overflow-y: auto;
-
-
-      .form-title {
-        .w;
-        .flex-center;
-        height: 10%;
-        background-color: rgb(242, 243, 245);
-        display: none;
-
-        >p {
-          font-size: 24px;
-          letter-spacing: 3px;
-          font-weight: 700;
+      background-color: rgb(170, 166, 166);
+  
+      >.right {
+        min-width: 386px;
+        justify-content: space-between;
+        .flex-column-center;
+  
+        >div {
+          .flex-center;
+          width: 80px;
+          height: 32px;
+          color: white;
+          background: #165DFF;
+          border-radius: 4px;
         }
       }
-
-      .form-content {
-        height: auto;
-        .w;
-
-        .exc-info {
+    }
+  
+    .content {
+      .full;
+      .flex-center;
+      flex-direction: column;
+      overflow-y: scroll;
+  
+      .form {
+        width: 80%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+  
+        .form-title {
           .w;
-          height: auto;
-
-
-          .info-electric {
-            .w;
-            height: 40px;
-            border-left: 1px solid rgb(232, 234, 236);
-            border-right: 2px solid rgb(232, 234, 236);
+          .flex-center;
+          height: 10%;
+          background-color: rgb(242, 243, 245);
+          display: none;
+  
+          >p {
+            font-size: 24px;
+            letter-spacing: 3px;
             font-weight: 700;
-            .flex-column-center;
-
-            .succ {
+          }
+        }
+  
+        .form-content {
+          height: auto;
+          .w;
+  
+          .exc-info {
+            .w;
+            height: auto;
+  
+  
+            .info-electric {
               .w;
-
-              >p {
-                white-space: nowrap;
-                text-overflow: ellipsis;
-                overflow: hidden;
-                display: inline-block
+              height: 40px;
+              border-left: 1px solid rgb(232, 234, 236);
+              border-right: 2px solid rgb(232, 234, 236);
+              font-weight: 700;
+              .flex-column-center;
+  
+              .succ {
+                .w;
+  
+                >p {
+                  white-space: nowrap;
+                  text-overflow: ellipsis;
+                  overflow: hidden;
+                  display: inline-block
+                }
               }
-            }
-
-            >div {
-              .w;
-
+              .succ >p:last-child{
+                margin-left: 50px
+              }
+  
               >div {
-                margin-left: 10px;
+                .w;
+  
+                >div {
+                  margin-left: 10px;
+                }
               }
             }
           }
         }
+  
+  
+  
       }
-
-
-
-    }
-
-    .sel-plan {
-      .full;
-      .flex-center;
-
-      >div {
-        width: 100px;
-        height: 100px;
-        margin-left: 50px;
-        background-color: #777;
+  
+      .sel-plan {
+        .full;
         .flex-center;
+  
+        >div {
+          width: 100px;
+          height: 100px;
+          margin-left: 50px;
+          background-color: #777;
+          .flex-center;
+        }
+      }
+  
+      .succ {
+        color: black;
+        font-size: 15px;
       }
     }
-
-    .succ {
-      color: black;
-      font-size: 15px;
-    }
+  
+  
   }
-
-
-}

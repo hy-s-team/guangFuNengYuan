@@ -3,8 +3,12 @@ import { get, post } from "../../lib/axios";
 /**
  * 根据逆变器以及发电量获得预期
  */
-export const getCapacity = (capacity: number, inverter_id: number) => {
-  return get("/inverter/getCapacity", { capacity, inverter_id });
+export const getCapacity = (
+  capacity: number,
+  inverter_id: number,
+  inverter_num: number
+) => {
+  return get("/inverter/getCapacity", { capacity, inverter_id, inverter_num });
 };
 
 /*

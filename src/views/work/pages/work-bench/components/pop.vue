@@ -5,10 +5,11 @@
 <script setup lang="ts">
 // @ts-ignore
 import Exc from "./components/from.vue";
-import { defineProps, reactive, ref } from "vue";
+import { defineProps, onMounted, reactive, ref } from "vue";
 import { getAllNBQ, getCapacity } from "../../../../../assets/api/plan/plan";
 import { ExcelService } from "../../../../../utils/exportToExcel";
 import bus from "./../../../../../utils/eventbus/eventsbus";
+import { ElMessage } from "element-plus";
 type excelMap = {
   名称: string;
   序号: string;
@@ -47,7 +48,7 @@ const compute = reactive({
       datas.map((data: any) => {
         compute.methods.addMachineModel(data);
       });
-      console.log(datas, "datas所有逆变器");
+      console.log("所有逆变器信息-->", datas);
     },
 
     /* 解构设备信息 */
@@ -60,6 +61,7 @@ const compute = reactive({
         inverter_output_power,
         inverter_price,
         inverter_up_limit,
+        inverter_type,
       } = data;
       map["value"] = inverter_name;
       map["label"] = inverter_name;
@@ -69,6 +71,7 @@ const compute = reactive({
         inverter_output_power: inverter_output_power,
         inverter_price: inverter_price,
         inverter_up_limit: inverter_up_limit,
+        inverter_type: inverter_type,
       };
       compute.coms.machineModel.data.push(map);
     },
@@ -80,11 +83,12 @@ const compute = reactive({
       value: <number | any>undefined,
       methods: {},
     },
+
     // 逆变器
     machineModel: {
       value: "",
       id: "",
-      data: [] as any,
+      data: <any>[],
       methods: {
         // 选择机器型号
         select: (name: string) => {
@@ -97,17 +101,17 @@ const compute = reactive({
         },
       },
     },
+
     // 提交
     sub: {
       methods: {
         // 提交发电需求以及信号信息
         subInfo: async () => {
           console.log("方案", "方案");
-          bus.$emit("isShowForm", true);
-          return;
           let capacity = compute.coms.energy.value;
           let inverter_id = Number(compute.coms.machineModel.id);
-          let res: any = await getCapacity(capacity, inverter_id);
+          let inverter_num = Number(compute.data.nbqNumber);
+          let res: any = await getCapacity(capacity, inverter_id, inverter_num);
           const { msg, success, data } = res;
           compute.data.success = success;
           console.log(success, "success---是否成功~~~");
@@ -116,6 +120,16 @@ const compute = reactive({
           } else {
             compute.data.msg = data;
           }
+
+          // 弹窗是否成功!
+          if (success)
+            bus.$emit("isShowForm", {
+              isShow: true,
+              data: data,
+              nbqName: compute.coms.machineModel.value,
+              number: Number(compute.data.nbqNumber),
+            }) && ElMessage("输入正确正在加载表格数据!");
+          else ElMessage.error("输入信息有错或不批配,请重新输入!");
         },
       },
     },
@@ -145,10 +159,7 @@ const compute = reactive({
     // 逆变器类型
     nbqType: "光储一体机",
     // 逆变器个数
-    nbqNumber: 0,
-    // 表格说明
-    excExplain:
-      "说明: 1.质保期:5年; 2税票及税率:此报价已包含13%增值税专用发票和运费; 3.生效日期:2022-3-5 4.付款方式:预付; 5.送货方式:送至需XXXXXXXXXXXX; 6.包装方式:原包装",
+    nbqNumber: 1,
 
     // 是否显示表单等数据
     isShowPopContent: false,
@@ -156,7 +167,7 @@ const compute = reactive({
     // 添加方案菜单 弹窗
     isShowAddMeun: false,
 
-    //
+    // 方案名称
     popTitleName: "新建方案",
 
     methods: {

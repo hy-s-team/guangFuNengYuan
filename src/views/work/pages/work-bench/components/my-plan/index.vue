@@ -56,7 +56,7 @@ myPlan.methods.init();
         <p>+</p>
         <p>新建方案</p>
       </div>
-      <div class="plan-info" v-for="(i, index) in new Array(50).fill('')">
+      <div class="plan-list" v-for="(i, index) in new Array(50).fill('')">
         {{ `方案:${index}` }}
       </div>
     </div>

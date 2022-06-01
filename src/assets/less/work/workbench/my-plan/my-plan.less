@@ -5,6 +5,7 @@
     display: flex;
     flex-direction: column;
     background-color: rgb(244, 247, 254);
+    position: relative;
 
     .title {
         margin-top: 32px;
@@ -80,7 +81,7 @@
         overflow-y: auto;
         margin: 18px 12px 18px 12px;
 
-        .plan-info {
+        .plan-list {
             width: 268px;
             height: 174px;
             margin: 9px 12px 9px 12px;
@@ -98,7 +99,7 @@
         }
 
         .add-new-plan {
-            .plan-info;
+            .plan-list;
             background-color: rgb(228, 238, 254);
 
             &:hover {
@@ -115,9 +116,8 @@
     }
 
     // 表格
-    >.plan-info{
+    .plan-info{
         .full;
         position: absolute;
     }
-
 }

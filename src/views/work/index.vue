@@ -12,10 +12,6 @@ import bus from "./../../utils/eventbus/eventsbus";
 /* 路由*/
 const router = useRouter();
 const route = useRoute();
-/* 事件注册 --- add-plan */
-bus.$on("add-plan", () => {
-  // work.data.showPlan = true;
-});
 
 // 工作方案台
 const work = reactive({
