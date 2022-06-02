@@ -1,27 +1,37 @@
 <style lang="less" scoped></style>
 <script setup lang="ts">
-import { reactive, ref, defineProps, defineComponent, onMounted } from "vue";
+import { reactive, ref, onMounted } from "vue";
 import bus from "./../../../../../../utils/eventbus/eventsbus";
 
-const xTable = ref();
 // 表单数据
-const props = defineProps(["info"]);
+// const props = defineProps(["info"]);
 
-bus.$on("toForm", (info: any) => {
-  excel.methods.updatedAllList(info);
+onMounted(() => {
+  // 初始化
+  excel.init();
+
+  // 修改方案或生产方案   ---注册
+  bus.$on("toForm", (info: any, isEconomic: boolean) => {
+    console.log(info, "得到的方案信息~~~~");
+    excel.methods.updatedAllList(info, isEconomic);
+  });
+
+  // 修改方案1、2   ---注册
+  bus.$on("change-Plan", () => {
+    excel.methods.changeList();
+  });
 });
 
-bus.$on("change-Plan", () => {
-  excel.methods.changeList();
-});
+const xTable = ref();
 
+// 表格的数据和方法
 const excel = reactive({
   init: () => {
     // 先计算一下总价
     excel.methods.allTotal();
   },
   data: {
-    // 标题
+    // 标题---excel导出映射表
     titleName: {
       序号: "seq",
       品名: "name",
@@ -30,7 +40,7 @@ const excel = reactive({
       总价: "total",
       备注: "remarks",
     },
-    // 数据
+    // 基础表格数据
     dataList: [
       {
         name: "BMS",
@@ -84,67 +94,14 @@ const excel = reactive({
       },
     ],
 
-    dataListCopy: [
-      {
-        name: "BMS",
-        num: 0,
-        price: 0,
-        total: 0,
-        remarks: "",
-      },
-      {
-        name: "EMS",
-        num: 0,
-        price: 0,
-        total: 0,
-        remarks: "",
-      },
-      // 集装箱
-      {
-        name: "10尺集装箱",
-        num: 0,
-        price: 0,
-        total: 0,
-        remarks: "",
-      },
-      {
-        name: "空调系统",
-        num: 0,
-        price: 0,
-        total: 0,
-        remarks: "",
-      },
-      {
-        name: "消防系统",
-        num: 0,
-        price: 0,
-        total: 0,
-        remarks: "",
-      },
-      {
-        name: "运输费用",
-        num: 0,
-        price: 0,
-        total: 0,
-        remarks: "",
-      },
-      {
-        name: "调试及运输费用",
-        num: 0,
-        price: 0,
-        total: 0,
-        remarks: "",
-      },
-    ],
-
-    selectDataListIndex: 0,
-    // 合计表
+    // 合计表---表格最后一行的总价
     dataFooter: {
       num: 0,
       price: 0,
       total: 0,
     },
 
+    // 向表格新增的补充表单信息基本表
     addEmptyData: {
       timer: new Date().getTime(),
       isOther: true,
@@ -155,19 +112,17 @@ const excel = reactive({
       remarks: "",
     } as any,
 
-    // 是否显示表格
-    isShowExc: false,
-
     // 是否选择框之前被选中(联动的)
     isCheckLinkAge: false,
 
     // 选中的集合
     selectedArray: <any | null>[],
 
-    // 合计数据
+    // 合计数据---表单尾部
     totalArray: <string | any>["合计", null, null, null, null, 0],
 
-    getAllInfo: {} as any,
+    // 获取表单所有信息
+    getAllListInfo: {} as any,
 
     // 插入的信息
     insertInfo: {} as any,
@@ -176,12 +131,10 @@ const excel = reactive({
     rowIndex: 2,
 
     // 名字的位置
-    rowName: 0,
+    rowName: null as any,
 
-    // 方案
+    // 方案1、2的切换
     planExc: false,
-
-    selectIndex: <any>[],
   },
   methods: {
     // 计算单价
@@ -206,16 +159,11 @@ const excel = reactive({
       excel.methods.allTotal();
     },
 
-    // 获取到对应的清单
-    getList: () => {},
-
-    // 添加表格背景颜色
-    footerCellClassName: ({ $rowIndex, columnIndex }: any) => {
-      if (columnIndex === 1) {
-        if ($rowIndex === 0) {
-          return "col-blue";
-        }
-      }
+    // 在值发生改变时更新表尾合计
+    updateFooterEvent: () => {
+      const $table = xTable?.value;
+      if (!$table) return;
+      $table.updateFooter();
     },
 
     // 销量合计
@@ -231,14 +179,7 @@ const excel = reactive({
       $table.updateFooter();
     },
 
-    // 在值发生改变时更新表尾合计
-    updateFooterEvent: () => {
-      const $table = xTable?.value;
-      if (!$table) return;
-      $table.updateFooter();
-    },
-
-    // 数量和  必须是选中的行列
+    // 数量和  必须是选中的行列  每一行的
     sumNum(list: any, field: string) {
       let count = 0;
       let otherCount = 0;
@@ -253,10 +194,11 @@ const excel = reactive({
           otherCount += Number(i[field]);
         }
       });
+
       return count + otherCount;
     },
 
-    // 计算总数
+    // 计算总数---重复计算---最后一行和 footerMethod方法并用
     allTotal: () => {
       // 获取的数据价格汇总 遍历计算
       excel.data.dataList.map((item: any, index: number) => {
@@ -276,12 +218,7 @@ const excel = reactive({
       excel.methods.footerMethod();
     },
 
-    // 重新计算
-    computeAgain() {
-      excel.methods.allTotal();
-    },
-
-    // 合计计算
+    //--- 总价 合计计算---表单最后一行
     footerMethod: () => {
       // 合计数据
       const totalArray = excel.data.totalArray;
@@ -294,32 +231,7 @@ const excel = reactive({
       return [excel.data.totalArray];
     },
 
-    // 切换选中的行列  --- 全选的
-    checkboxChangeEvent({ checked, records, reserves }: any) {
-      const selectName = JSON.stringify(records);
-      // 得到一开始所有的数据
-      excel.data.selectedArray = JSON.parse(selectName);
-
-      // 计算 数据总价
-      excel.methods.computeAgain();
-
-      // 刷新还是选中必选项
-      excel.methods.selectDefaultMode();
-
-      let a1 = false;
-      let a2 = false;
-      xTable.value.getCheckboxRecords().map((i: any) => {
-        if (i.name === "空调系统") a1 = true;
-        else a2 = true;
-      });
-
-      if (a1 && a2) excel.data.isCheckLinkAge = true;
-      else excel.data.isCheckLinkAge = false;
-      a1 = false;
-      a2 = false;
-    },
-
-    // 单选中一项的问题
+    //--- 单选中一项的问题
     checkboxChange(...c: any) {
       const checkInfo = { ...c };
       const { row, rowIndex } = Object.values(checkInfo)[0] as any;
@@ -327,7 +239,8 @@ const excel = reactive({
       const map = excel.data.dataList[rowIndex];
       map.num = num;
       map.price = price;
-      excel.methods.computeAgain();
+
+      excel.methods.allTotal();
 
       // 选中出基础的5项以外的数据
       excel.methods.selectDefaultMode();
@@ -337,32 +250,51 @@ const excel = reactive({
       excel.data.isCheckLinkAge = !excel.data.isCheckLinkAge;
     },
 
+    //--- 全选的 切换选中的行列
+    checkboxChangeEvent({ checked, records, reserves }: any) {
+      const selectName = JSON.stringify(records);
+      // 得到一开始所有的数据
+      excel.data.selectedArray = JSON.parse(selectName);
+
+      // 全选时可能会造成问题启动宏任务
+      new Promise((s: any) => {
+        // 刷新还是选中必选项
+        excel.methods.selectDefaultMode();
+        s();
+      }).then(() => {
+        let timer = setTimeout(() => {
+          // 计算 数据总价
+          excel.methods.allTotal();
+
+          clearTimeout(timer);
+        });
+      });
+
+      // 判断联动
+      excel.methods.judgeLinkAge();
+    },
+
     // 默认选中出基础的5项以外的数据
     selectDefaultMode() {
       let timer = setTimeout(() => {
         if (excel.data.dataList.length <= 7) return;
-
         // 判断选中前几个
         let arr = Object.values(excel.data.dataList).filter(
           (i: any) => i?.name && i?.name.indexOf("隔离变压器") != -1
         );
 
-        excel.data.selectIndex = arr;
-
-        // 判断插槽在哪里
-        arr[0] ? (excel.data.rowIndex = 8) : (excel.data.rowIndex = 7);
-
-        console.log(arr[0], "arr[0]");
-
         arr[0]
           ? (excel.data.rowName = "10尺集装箱")
           : (excel.data.rowName = "10尺集装箱");
 
-        // Object.values(excel.data.dataList).map((item: any, index: number) => {
-        //   if (item.name === "10尺集装箱") {
-        //     excel.data.rowName = index;
-        //   }
-        // });
+        Object.values(excel.data.dataList).map((item: any, index: number) => {
+          if (item.name === "10尺集装箱") {
+            excel.data.rowIndex = index;
+          }
+        });
+
+        // 判断插槽在哪里
+        // arr[0] ? (excel.data.rowIndex = 8) : (excel.data.rowIndex = 7);
 
         // 选中
         excel.data.dataList.map((i: any, index: number) => {
@@ -376,11 +308,9 @@ const excel = reactive({
       });
     },
 
-    // 选择联动
+    // 选择  联动  集装箱
     linkage(row: any, rowIndex: number, isshow: boolean) {
       const { name } = row;
-
-      console.log(excel.data.dataList, "excel.data.dataList联动的数据");
 
       // 确保每一次点击的都最新的索引
       excel.data.dataList.map((item: any, index: number) => {
@@ -426,34 +356,27 @@ const excel = reactive({
       excel.data.selectedArray = xTable.value.getCheckboxRecords();
     },
 
-    // 新增
-    insertEvent() {
-      const map = reactive({ ...excel.data.addEmptyData });
-      // 插入最后一行数据
-      xTable.value.insertAt(map, -1);
+    // 判断  联动  集装箱
+    judgeLinkAge() {
+      // 判断联动是否正确
+      let a1 = false;
+      let a2 = false;
+      xTable.value.getCheckboxRecords().map((i: any) => {
+        if (i.name === "空调系统") a1 = true;
+        else a2 = true;
+      });
 
-      // 添加到数组中
-      excel.data.dataList.push(map);
-
-      // 获取新增的临时数据
-      const insertRecords = excel.data.dataList.filter(
-        (row: any) => row._isNew
-      )[0];
-
-      excel.methods.selectDefaultMode();
+      if (a1 && a2) excel.data.isCheckLinkAge = true;
+      else excel.data.isCheckLinkAge = false;
+      a1 = false;
+      a2 = false;
     },
 
-    // 删除---选中的
-    removeEvent() {
-      xTable.value.removeCheckboxRow();
-    },
+    // 更新全部表单----向表单插入数据
+    updatedAllList: (info: any, isEconomic: boolean) => {
+      // 标识符切换同步
+      // excel.data.planExc = isEconomic;
 
-    // 下拉框的选项
-
-    refreshOption() {},
-
-    // 更新全部表单
-    updatedAllList: (info: any) => {
       new Promise((s: any) => {
         excel.methods.clearOldList();
         s();
@@ -471,21 +394,27 @@ const excel = reactive({
             },
             zj: {
               name: `支架`,
-              num: economic.bracket_number,
+              num: isEconomic
+                ? economic.bracket_number
+                : practical.bracket_number,
               price: 0,
               total: 0,
               remarks: "",
             },
             gyh: {
               name: `高压盒`,
-              num: economic.bracket_number,
+              num: isEconomic
+                ? economic.bracket_number
+                : practical.bracket_number,
               price: 0,
               total: 0,
               remarks: "",
             },
             dcmz: {
               name: `电池模组`,
-              num: economic.battery_number,
+              num: isEconomic
+                ? economic.battery_number
+                : practical.battery_number,
               price: 0,
               total: 0,
               remarks: "",
@@ -512,27 +441,24 @@ const excel = reactive({
             await xTable.value.setActiveCell(newRow);
             excel.data.dataList.unshift(newRow);
           });
-          let index = data.隔离变压器
-            ? (excel.data.rowName = 8)
-            : (excel.data.rowName = 7);
-          console.log(
-            excel.data.dataList[index]?.name,
-            "excel.data.dataList[index].name"
-          );
         })
         .then(() => {
-          excel.data.getAllInfo = info;
-
+          // 存储信息
+          excel.data.getAllListInfo = info;
           // 默认选中
           excel.methods.selectDefaultMode();
+
+          console.log(
+            excel.data.dataList,
+            "excel.data.dataList----每次的表单数据"
+          );
         });
     },
 
-    // 切换列表信息
+    // 切换列表信息-----方案 1、2
     changeList() {
-      const { data, nbqName, number } = excel.data.getAllInfo;
+      const { data } = excel.data.getAllListInfo;
       const { economic, practical } = data;
-      console.log(excel.data.getAllInfo, "获取到的所有信息~~~");
 
       excel.data.dataList.map((item: any) => {
         Object.values(excel.data.insertInfo).map((i: any) => {
@@ -564,13 +490,30 @@ const excel = reactive({
           }
         });
       });
-      // 切换显示方案
-      bus.$emit("change-Plan-Electric", excel.data.planExc);
 
-      excel.data.planExc = !excel.data.planExc;
+      // 切换方案的情况
+
+      // 经济型发电量
+      const { capacity: economicCapacity } = economic;
+      // 实用性发电量
+      const { capacity: practicalCapacity } = practical;
+
+      if (economicCapacity && practicalCapacity) {
+        // 切换显示方案 --- 为false  因为已经默认显示第一种方案
+        bus.$emit("change-Plan-Electric", excel.data.planExc);
+        excel.data.planExc = !excel.data.planExc;
+      } else if (economicCapacity && !practicalCapacity) {
+        bus.$emit("change-Plan-Electric", true);
+      } else if (!economicCapacity && practicalCapacity) {
+        bus.$emit("change-Plan-Electric", false);
+      } else if (!economicCapacity && !practicalCapacity) {
+        return;
+      }
+
+      console.log(excel.data.planExc, "excel.data.planExc---修改完的");
     },
 
-    // 清空之前的所有后添加的数据
+    // 清空之前 表格添加的数据
     clearOldList() {
       // 长度小7的不处理
       if (excel.data.dataList.length <= 7) return;
@@ -583,32 +526,53 @@ const excel = reactive({
       excel.data.dataList.map((item: any, index: number) => {
         if (index <= (arr[0] ? 5 : 4)) {
           xTable.value.remove(excel.data.dataList[index]);
-          console.log(item, "需要删除的项");
+          // console.log(item, "需要删除的项");
         }
       });
 
+      // 删除数组中之前的数据
       excel.data.dataList.splice(0, arr[0] ? 6 : 5);
     },
 
-    // 保存
-    saveEvent() {},
+    // 新增
+    insertEvent() {
+      const map = reactive({ ...excel.data.addEmptyData });
+      // 插入最后一行数据
+      xTable.value.insertAt(map, -1);
 
-    // 更新数据
-    updateData() {
-      excel.data.dataList.push(excel.data.addEmptyData);
+      // 添加到数组中
+      excel.data.dataList.push(map);
+
+      // 获取新增的临时数据
+      const insertRecords = excel.data.dataList.filter(
+        (row: any) => row._isNew
+      )[0];
+
+      excel.methods.selectDefaultMode();
+    },
+
+    // 删除---选中的
+    removeEvent() {
+      xTable.value.removeCheckboxRow();
     },
 
     // 更新数据
     loadData() {},
-  },
-});
 
-let timer = setTimeout(() => {
-  // 默认选中必选的信息
-  // excel.methods.selectDefaultMode();
-  // 初始化默认事件
-  excel.init();
-  clearTimeout(timer);
+    // 更新输入表单数据
+    updateData() {
+      excel.data.dataList.push(excel.data.addEmptyData);
+    },
+
+    // 添加表格背景颜色
+    footerCellClassName: ({ $rowIndex, columnIndex }: any) => {
+      if (columnIndex === 1) {
+        if ($rowIndex === 0) {
+          return "col-blue";
+        }
+      }
+    },
+  },
 });
 
 defineExpose({
@@ -622,7 +586,6 @@ defineExpose({
       <template #buttons>
         <vxe-button @click="excel.methods.insertEvent">新增</vxe-button>
         <vxe-button @click="excel.methods.removeEvent">删除</vxe-button>
-        <vxe-button @click="excel.methods.saveEvent">保存</vxe-button>
       </template>
     </vxe-toolbar>
     <vxe-table
@@ -661,15 +624,7 @@ defineExpose({
       <vxe-column field="name" title="品名" width="200" show-overflow>
         <template #default="{ row, rowIndex }">
           <template v-if="rowIndex === excel.data.rowIndex">
-            <vxe-select
-              v-model="excel.data.rowName"
-              transfer
-              @refreshOption="
-                () => {
-                  excel.methods.refreshOption();
-                }
-              "
-            >
+            <vxe-select v-model="excel.data.rowName" transfer>
               <vxe-option value="10尺集装箱" label="10尺集装箱"></vxe-option>
               <vxe-option value="20尺集装箱" label="20尺集装箱"></vxe-option>
               <vxe-option value="40尺集装箱" label="40尺集装箱"></vxe-option>

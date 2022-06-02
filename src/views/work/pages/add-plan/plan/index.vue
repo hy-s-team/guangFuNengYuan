@@ -21,13 +21,32 @@ type excelMap = {
 
 // 显示表格信息
 bus.$on("isShowForm-fn", (info: any) => {
-  const { isShow, data, nbqName, machineModel } = info;
+  const { isShow, data } = info;
   compute.data.isShowForm = isShow;
   compute.data.planData = data;
   compute.data.getInfo = info;
-  bus.$emit("toForm", info);
+  const { economic, practical } = data;
+  // 经济型发电量
+  const { capacity: economicCapacity } = economic;
+  // 实用性发电量
+  const { capacity: practicalCapacity } = practical;
+
+  // 进来第一次判断是否屏蔽没有数据的方案
+  if (economicCapacity && practicalCapacity) {
+    compute.data.isEconomic = true;
+  } else if (economicCapacity && !practicalCapacity) {
+    compute.data.isEconomic = true;
+  } else if (!economicCapacity && practicalCapacity) {
+    compute.data.isEconomic = false;
+  } else if (!economicCapacity && !practicalCapacity) {
+    return;
+  }
+
+  // 用于切换表单内的设备数量
+  bus.$emit("toForm", info, compute.data.isEconomic);
 });
 
+// 用于对于实际的发电量的计算 显示具体的方案几  from.vue进行切换判断
 bus.$on("change-Plan-Electric", (isEconomic: boolean) => {
   compute.data.isEconomic = isEconomic;
 });
@@ -296,8 +315,8 @@ compute.init();
                   <p>
                     {{
                       `${
-                        compute.data.isEconomic ? "经济" : "实用"
-                      }型实际发电量:${
+                        compute.data.isEconomic ? "方案一" : "方案二"
+                      }实际发电量:${
                         compute.data.planData
                           ? `${
                               compute.data.planData?.inverter_output_power

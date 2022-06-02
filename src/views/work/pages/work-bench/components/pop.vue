@@ -19,62 +19,25 @@ type excelMap = {
   价格: number;
   总价合计: string;
 }[];
-/*
-    电能计算 总对象
-      子组件属性
-        本组件
-*/
+
+// const props = defineProps(["work"]);
+// 弹窗菜单
+onMounted(() => {
+  // 显示添加方案的菜单
+  bus.$on("showPlanMenu", (isShow: boolean, msg = "新建方案") => {
+    compute.data.isShowAddMeun = isShow;
+    if (msg) compute.data.popTitleName = msg;
+  });
+  compute.init();
+});
+
 const exc = ref();
 // 拿到父组件资源
-const props = defineProps(["work"]);
-
-// 显示添加方案的菜单
-bus.$on("showPlanMenu", (isShow: boolean, msg = "新建方案") => {
-  compute.data.isShowAddMeun = isShow;
-  if (msg) compute.data.popTitleName = msg;
-});
 
 const compute = reactive({
   init: () => {
     // 获取所有的逆变器
     compute.methods.getAllNBQ();
-  },
-  methods: {
-    /** 获取所有的设备 */
-    getAllNBQ: async () => {
-      let res: any = await getAllNBQ();
-      if (!res) return;
-      let datas = res?.data;
-      datas.map((data: any) => {
-        compute.methods.addMachineModel(data);
-      });
-      console.log("所有逆变器信息-->", datas);
-    },
-
-    /* 解构设备信息 */
-    addMachineModel: (data: any) => {
-      let map: any = {};
-      const {
-        inverter_id,
-        inverter_lower_limit,
-        inverter_name,
-        inverter_output_power,
-        inverter_price,
-        inverter_up_limit,
-        inverter_type,
-      } = data;
-      map["value"] = inverter_name;
-      map["label"] = inverter_name;
-      map[inverter_name] = {
-        inverter_id: inverter_id,
-        inverter_lower_limit: inverter_lower_limit,
-        inverter_output_power: inverter_output_power,
-        inverter_price: inverter_price,
-        inverter_up_limit: inverter_up_limit,
-        inverter_type: inverter_type,
-      };
-      compute.coms.machineModel.data.push(map);
-    },
   },
   // 内部组件
   coms: {
@@ -107,68 +70,19 @@ const compute = reactive({
       methods: {
         // 提交发电需求以及信号信息
         subInfo: async () => {
-          console.log("方案", "方案");
           let capacity = compute.coms.energy.value;
           let inverter_id = Number(compute.coms.machineModel.id);
           let inverter_num = Number(compute.data.nbqNumber);
-          // let res: any = await getCapacity(capacity, inverter_id, inverter_num);
-          // const { msg, success, data } = res;
-          // compute.data.success = success;
-          // console.log(success, "success---是否成功~~~");
-          // if (!data) {
-          //   compute.data.msg = msg;
-          // } else {
-          //   compute.data.msg = data;
-          // }
-
-          if (inverter_num === 1) {
-            bus.$emit("isShowForm-fn", {
-              isShow: true,
-              data: {
-                economic: {
-                  battery_number: 10,
-                  bracket_number: null,
-                  capacity: 0,
-                  errmsg: "",
-                },
-                inverter_number: 100,
-                inverter_output_power: 20,
-                practical: {
-                  battery_number: 11,
-                  bracket_number: 2,
-                  capacity: 0,
-                  errmsg: null,
-                },
-              },
-              nbqName: "gta",
-              number: Number(compute.data.nbqNumber),
-            }) && ElMessage("输入正确正在加载表格数据!");
-          } else if (inverter_num === 2) {
-            bus.$emit("isShowForm-fn", {
-              isShow: true,
-              data: {
-                economic: {
-                  battery_number: 10,
-                  bracket_number: null,
-                  capacity: 0,
-                  errmsg: "",
-                },
-                隔离变压器: 1,
-                inverter_number: 200,
-                inverter_output_power: 20,
-                practical: {
-                  battery_number: 11,
-                  bracket_number: 5,
-                  capacity: 0,
-                  errmsg: null,
-                },
-              },
-              nbqName: "gta",
-              number: Number(compute.data.nbqNumber),
-            }) && ElMessage("输入正确正在加载表格数据!");
+          let res: any = await getCapacity(capacity, inverter_id, inverter_num);
+          const { msg, success, data } = res;
+          compute.data.success = success;
+          console.log("数据请求是否成功~~~", success);
+          if (!data) {
+            compute.data.msg = msg;
+          } else {
+            compute.data.msg = data;
           }
 
-          return;
           // 弹窗是否成功!
           if (success)
             bus.$emit("isShowForm-fn", {
@@ -182,6 +96,7 @@ const compute = reactive({
       },
     },
   },
+
   // 数据
   data: {
     // 导出的表单数据
@@ -341,8 +256,45 @@ const compute = reactive({
       },
     },
   },
+
+  methods: {
+    /** 获取所有的设备 */
+    getAllNBQ: async () => {
+      let res: any = await getAllNBQ();
+      if (!res) return;
+      let datas = res?.data;
+      datas?.map((data: any) => {
+        compute.methods.addMachineModel(data);
+      });
+      console.log("所有逆变器信息-->", datas);
+    },
+
+    /* 解构设备信息 */
+    addMachineModel: (data: any) => {
+      let map: any = {};
+      const {
+        inverter_id,
+        inverter_lower_limit,
+        inverter_name,
+        inverter_output_power,
+        inverter_price,
+        inverter_up_limit,
+        inverter_type,
+      } = data;
+      map["value"] = inverter_name;
+      map["label"] = inverter_name;
+      map[inverter_name] = {
+        inverter_id: inverter_id,
+        inverter_lower_limit: inverter_lower_limit,
+        inverter_output_power: inverter_output_power,
+        inverter_price: inverter_price,
+        inverter_up_limit: inverter_up_limit,
+        inverter_type: inverter_type,
+      };
+      compute.coms.machineModel.data.push(map);
+    },
+  },
 });
-compute.init();
 </script>
 
 <template>
