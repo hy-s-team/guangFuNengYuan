@@ -1,4 +1,4 @@
-@import './base.less';
+@import "./base.less";
 
 .el-input {
   background-color: rgb(242, 243, 245);
@@ -31,7 +31,6 @@
   font-size: 12px;
 }
 
-
 .el-radio-group .is-checked {
   font-weight: 600 !important;
 
@@ -40,7 +39,6 @@
   }
 }
 
-
 .my-plan {
   .el-input>div {
     background-color: #fff;
@@ -48,19 +46,69 @@
 
     >input {
       font-weight: 400 !important;
-      font-family: 'PingFang SC' !important;
+      font-family: "PingFang SC" !important;
       font-size: 12px !important;
     }
   }
 }
 
-
 .add-plan {
   .el-textarea__inner {
     box-shadow: none;
-    border: 1px solid rgb(232,234,236);
-    border-right:  2px solid rgb(232,234,236);
+    border: 1px solid rgb(232, 234, 236);
+    border-right: 2px solid rgb(232, 234, 236);
     border-radius: 0px;
     letter-spacing: 1.5px;
+  }
+}
+
+.pop {
+  .el-overlay {
+    div {
+      width: 346px !important;
+
+      .el-drawer__header {
+        margin: 0px;
+        padding: 0px 16px;
+        height: 48px !important;
+        color: #1D2129 !important;
+
+        span {
+          font-weight: bolder;
+          font-size: 16px;
+        }
+
+        button {
+          font-size: 16px;
+          width: 16px;
+          height: 16px;
+          .flex-center;
+
+          i {
+            font-size: 16px;
+          }
+
+          svg {
+            font-size: 16px;
+          }
+        }
+      }
+
+      .el-drawer__body {
+        height: 89vh;
+        padding: 0px 16px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+
+
+        .el-drawer_footer {
+          height: 64px;
+          margin-bottom: 0px;
+        }
+      }
+
+  
+    }
   }
 }

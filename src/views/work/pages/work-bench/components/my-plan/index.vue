@@ -4,11 +4,19 @@
 <script setup lang="ts">
 import { reactive, ref } from "vue";
 import bus from "./../../../../../../utils/eventbus/eventsbus";
+import { ElMessageBox } from "element-plus";
 //@ts-ignore
 import Pop from "./../pop.vue";
 //@ts-ignore
 import Form from "./../../../add-plan/plan/index.vue";
 // @ts-ignore
+const drawer = ref(false);
+const handleClose = (done: () => void) => {
+  console.log(12313, "12313");
+
+  done();
+};
+
 // 添加我的方案
 const myPlan = reactive({
   data: {},
@@ -48,7 +56,8 @@ myPlan.methods.init();
       <div
         @click="
           () => {
-            myPlan.methods.addNewPlan();
+            // myPlan.methods.addNewPlan();
+            drawer = true;
           }
         "
         class="add-new-plan"
@@ -60,7 +69,22 @@ myPlan.methods.init();
         {{ `方案:${index}` }}
       </div>
     </div>
-    <Pop></Pop>
+    <!-- <Pop></Pop> -->
+
+    <div class="pop">
+      <el-drawer
+        v-model="drawer"
+        title="新建方案"
+        direction="rtl"
+        :before-close="handleClose"
+      >
+        <el-form> 12313 </el-form>
+        <div class="el-drawer__footer">
+          <el-button>取 消</el-button>
+          <el-button type="primary">{{ "保存方案" }}</el-button>
+        </div>
+      </el-drawer>
+    </div>
     <Form></Form>
   </div>
 </template>
